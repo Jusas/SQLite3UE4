@@ -2,30 +2,8 @@
 
 #include "SQLiteDatabase.generated.h"
 
-USTRUCT()
-struct FSQLiteFile
-{
-	GENERATED_USTRUCT_BODY()
-
-	FString Name;
-	FString Filename;
-};
-
-namespace SQLiteFillableTypes
-{
-	enum EFillableTypes
-	{
-		Boolean,
-		Integer,
-		String,
-		Float,
-		Byte,
-
-	};
-}
-
 /**
-* Example of declaring a UObject in a plugin module
+* SQLite main database object.
 */
 UCLASS()
 class USQLiteDatabase : public UObject

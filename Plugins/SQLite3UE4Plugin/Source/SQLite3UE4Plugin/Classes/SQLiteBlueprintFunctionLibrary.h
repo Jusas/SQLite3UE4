@@ -3,7 +3,9 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "SQLiteBlueprintFunctionLibrary.generated.h"
 
-
+/**
+*	Blueprint function library, convenience stuff.
+*/
 UCLASS()
 class USQLiteBlueprintFunctionLibrary : public UBlueprintFunctionLibrary
 {

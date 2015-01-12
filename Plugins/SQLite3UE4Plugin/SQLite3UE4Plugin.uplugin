@@ -1,0 +1,21 @@
+{
+    "FileVersion" : 3,
+    "FriendlyName" : "SQLite3 Plugin",
+    "Version" : 1,
+    "VersionName": "1.0",
+    "EngineVersion" : 1579795,
+    "Description" : "Exposing SQLite3 functionality to UE4",
+    "Category" : "Database",
+    "CreatedBy" : "Jussi Saarivirta",
+    "CreatedByURL" : "http://jusas.net",
+    "CanContainContent" : "false",
+    "Modules" :
+    [
+        {
+            "Name" : "SQLite3UE4Plugin",
+            "Type" : "Runtime",
+			"LoadingPhase" : "PreDefault"
+
+        } 
+    ]
+}

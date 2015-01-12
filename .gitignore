@@ -1,0 +1,9 @@
+Binaries/
+Saved/Backup/
+Saved/Autosaves/
+Saved/AutoScreenshot.png
+*.suo
+*.sdf
+Intermediate/
+Saved/Logs/
+Saved/

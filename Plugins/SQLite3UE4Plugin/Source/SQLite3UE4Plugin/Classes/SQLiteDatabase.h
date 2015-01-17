@@ -1,9 +1,120 @@
 #pragma once
-
+#include "SQLiteBlueprintNodes.h"
 #include "SQLiteDatabase.generated.h"
 
+USTRUCT(BlueprintType)
+struct FSQLiteDatabaseReference
+{
+	GENERATED_USTRUCT_BODY()
+
+	/** The database name (not the filename) */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SQLite Database Reference")
+	FString DatabaseName;
+
+	/** The database tables we want to get data from */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SQLite Database Reference")
+	TArray<FString> Tables;
+};
+
+USTRUCT(BlueprintType)
+struct FSQLiteKeyValuePair
+{
+	GENERATED_USTRUCT_BODY()
+	
+	/** The database table field name */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SQLite Key Value Pair")
+	FString Key;
+
+	/** The value of the field */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SQLite Key Value Pair")
+	FString Value;
+};
+
+USTRUCT(BlueprintType)
+struct FSQLiteQueryResultRow
+{
+	GENERATED_USTRUCT_BODY()
+
+	/** A list of field name, field value pairs */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SQLite Query Result")
+	TArray<FSQLiteKeyValuePair> Fields;
+};
+
+USTRUCT(BlueprintType)
+struct FSQLiteQueryResult
+{
+	GENERATED_USTRUCT_BODY()
+
+	/** The resulting rows from the query */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SQLite Query Result")
+	TArray<FSQLiteQueryResultRow> ResultRows;
+
+	/** Was the query successful or not */
+	UPROPERTY(BlueprintReadOnly, Category = "SQLite Query Result")
+	bool Success;
+
+	/** If the query was unsuccessful a human readable error message will be populated here */
+	UPROPERTY(BlueprintReadOnly, Category = "SQLite Query Result")
+	FString ErrorMessage;
+
+};
+
+
+
+// A few things for internal use here.
+namespace SQLiteResultValueTypes
+{
+	enum SQLiteResultValType
+	{
+		Integer,
+		Float,
+		Text,
+		UnsupportedValueType
+	};
+}
+
+// Result field, used as an intermediary when collecting results from
+// an SQLITE3 query.
+struct SQLiteResultField
+{
+	FString StringValue;
+	double DoubleValue;
+	int64 IntValue;
+
+	FString Name;
+	SQLiteResultValueTypes::SQLiteResultValType Type;
+
+	FString ToString()
+	{
+		if (Type == SQLiteResultValueTypes::Text)
+			return StringValue;
+		else if (Type == SQLiteResultValueTypes::Integer)
+			return FString::Printf(TEXT("%i"), IntValue);
+		else if (Type == SQLiteResultValueTypes::Float)
+			return FString::Printf(TEXT("%f"), DoubleValue);
+
+		return StringValue;
+	}
+};
+
+// Represents a single row in the result.
+struct SQLiteResultValue
+{
+	TArray<SQLiteResultField> Fields;
+};
+
+// The internal result object.
+struct SQLiteQueryResult
+{
+	bool Success;
+	FString ErrorMessage;
+	TArray<SQLiteResultValue> Results;
+};
+
+
+
 /**
-* SQLite main database object.
+* SQLite main database class.
 */
 UCLASS()
 class USQLiteDatabase : public UObject
@@ -12,23 +123,43 @@ class USQLiteDatabase : public UObject
 
 	public:
 
-		/** Add a database to the list of databases. It will be checked that it's valid (will try to open it)*/
+		/** Add a database to the list of databases. It will be checked that it's valid (will try to open it) */
 		UFUNCTION(BlueprintCallable, Category = "SQLite")
 		static bool RegisterDatabase(FString Name, FString Filename, bool RelativeToGameContentDirectory);
 
-		// https://www.unrealengine.com/blog/unreal-property-system-reflection
-		/** Gets data from the database using a select statement */
+		/** Get data from the database using a select statement straight into an UObject, ie. populates its properties. */
+		static bool GetDataIntoObject(const FString& DatabaseName, const FString& Query, UObject* ObjectToPopulate);
+
+		/** Blueprint: Gets data from the database using a select statement straight into an UObject, ie. populates its properties.
+		*   Note: Does not create a new object. ObjectToPopulate is the reference to the object you want to populate. */
 		UFUNCTION(BlueprintCallable, Category = "SQLite")
-		static bool GetDataToObject(FString DatabaseName, FString Table, TArray<FString> Fields, FString Criteria, UObject* FilledData);
+		static bool GetDataIntoObject(const FSQLiteDatabaseReference& DataSource, TArray<FString> Fields, FSQLiteQueryFinalizedQuery Query, UObject* ObjectToPopulate);
 
+		/** Get data from the database using a select statement and return the rows. */
+		static FSQLiteQueryResult GetData(const FString& DatabaseName, const FString& Query);
 
+		/** Blueprint: Get data from the database. Returns the resulting rows. */
+		UFUNCTION(BlueprintCallable, Category = "SQLite")
+		static FSQLiteQueryResult GetData(const FSQLiteDatabaseReference& DataSource, TArray<FString> Fields, FSQLiteQueryFinalizedQuery Query, int32 MaxResults = -1, int32 ResultOffset = 0);
 
 	private:
+		/** Checks database validity (if the file exists and/or if it can be opened). */
 		static bool IsValidDatabase(FString DatabaseFilename, bool TestByOpening);
+		/** Tries to open a database. */
+		static bool CanOpenDatabase(FString DatabaseFilename);
+		/** Checks if the database is registered, ie. that it can be found in Databases. */
 		static bool IsDatabaseRegistered(FString DatabaseName);
+		/** Collects all properties from an UObject and maps them by the property name. */
 		static TMap<FString, UProperty*> CollectProperties(UObject* SourceObject);
+		/** Constructs an SQL query from the blueprint fed data. */
+		static FString ConstructQuery(TArray<FString> Tables, TArray<FString> Fields, FSQLiteQueryFinalizedQuery QueryObject, int32 MaxResults = -1, int32 ResultOffset = 0);
+		/** Runs a query and returns fetched rows. */
+		static SQLiteQueryResult RunQueryAndGetResults(FString DatabaseName, FString Query);
+		/** Assigns a result row's fields' values to an UObject, ie. assigns them to the properties that have the same name. */
+		static void AssignResultsToObjectProperties(const SQLiteResultValue& ResultValue, UObject* ObjectToPopulate);
 
 	private:
+		/** A list of the databases for convenience, easier to refer to them by name rather than a long filename. */
 		static TMap<FString, FString> Databases;
 
 };

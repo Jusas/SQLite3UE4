@@ -64,21 +64,28 @@ FSQLiteQueryTermExpectedNode USQLiteBlueprintFunctionLibrary::QueryStart(FSQLite
 	return FSQLiteQueryTermExpectedNode(LogicOperationOrNone.Query, TEXT("("));
 }
 
+//--------------------------------------------------------------------------------------------------------------
+
 FSQLiteQueryLogicExpectedNode USQLiteBlueprintFunctionLibrary::QueryEnd(const FSQLiteQueryLogicExpectedNode& LastQueryTerm)
 {
 	return FSQLiteQueryLogicExpectedNode(LastQueryTerm.Query, TEXT(")"));
 }
+
+//--------------------------------------------------------------------------------------------------------------
 
 FSQLiteQueryLogicExpectedNode USQLiteBlueprintFunctionLibrary::QueryTerm(const FSQLiteQueryTermExpectedNode& LogicOperation, FString Field, FString Operator, FString Value)
 {
 	return FSQLiteQueryLogicExpectedNode(LogicOperation.Query, FString::Printf(TEXT("%s %s \"%s\""), *Field, *Operator, *Value));
 }
 
-// Jaa And, Or, jne. nodeiksi
+//--------------------------------------------------------------------------------------------------------------
+
 FSQLiteQueryTermExpectedNode USQLiteBlueprintFunctionLibrary::QueryLogicAnd(const FSQLiteQueryLogicExpectedNode& LHS)
 {
 	return FSQLiteQueryTermExpectedNode(LHS.Query, TEXT(" AND "));
 }
+
+//--------------------------------------------------------------------------------------------------------------
 
 FSQLiteQueryTermExpectedNode USQLiteBlueprintFunctionLibrary::QueryLogicOr(const FSQLiteQueryLogicExpectedNode& LHS)
 {

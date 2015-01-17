@@ -22,6 +22,7 @@ class USQLiteBlueprintFunctionLibrary : public UBlueprintFunctionLibrary
 		/** 
 		* Simple casts for blueprint use.
 		*/
+
 		UFUNCTION(BlueprintCallable, Category = "SQLite|Value Conversion")
 		static int32 CastToInt(FString SQLiteResultValue);
 
@@ -38,30 +39,30 @@ class USQLiteBlueprintFunctionLibrary : public UBlueprintFunctionLibrary
 		static double CastToDouble(FString SQLiteResultValue);
 
 		/** 
-		*
+		* Blueprint nodes for building queries.
 		*/
 
-		
-		//UFUNCTION(BlueprintPure, meta = (DefaultToSelf = "LHS", FriendlyName = "Query Start", CompactNodeTitle = "("), Category = "SQLite|Query")
-		//static FSQLiteQueryTermExpectedNode QueryStart(const FSQLiteQueryTermExpectedNode& LogicOperationOrNone);
-
-
+		/** Start a new query block. */
 		UFUNCTION(BlueprintPure, meta = (FriendlyName = "Query Start", CompactNodeTitle = "("), Category = "SQLite|Query")
 		static FSQLiteQueryTermExpectedNode QueryStart(FSQLiteQueryTermExpectedNode LogicOperationOrNone);
 
+		/** End a query block. NOTE: To link this query to a Get Data node's query pin, link a Finalize Query node to the end of the query chain and link that to the pin. */
 		UFUNCTION(BlueprintPure, meta = (FriendlyName = "Query End", CompactNodeTitle = ")"), Category = "SQLite|Query")
 		static FSQLiteQueryLogicExpectedNode QueryEnd(const FSQLiteQueryLogicExpectedNode& LastQueryTerm);
 
+		/** A query term. Basically creating a "Key <operator> Value" comparison. */
 		UFUNCTION(BlueprintPure, meta = (FriendlyName = "Query Term"), Category = "SQLite|Query")
 		static FSQLiteQueryLogicExpectedNode QueryTerm(const FSQLiteQueryTermExpectedNode& LogicOperation, FString Field, FString Operator, FString Value);
 
-		// Jaa And, Or, jne. nodeiksi
+		/** AND logic node, combining two terms. */
 		UFUNCTION(BlueprintPure, meta = (FriendlyName = "AND", CompactNodeTitle = "AND"), Category = "SQLite|Query|Logic")
 		static FSQLiteQueryTermExpectedNode QueryLogicAnd(const FSQLiteQueryLogicExpectedNode& LHS);
 
+		/** OR logic node, combining two terms. */
 		UFUNCTION(BlueprintPure, meta = (FriendlyName = "OR", CompactNodeTitle = "OR"), Category = "SQLite|Query|Logic")
 		static FSQLiteQueryTermExpectedNode QueryLogicOr(const FSQLiteQueryLogicExpectedNode& LHS);
 
+		/** Finalizes the query. This node's output can be linked to a Get Data node's query source pin. */
 		UFUNCTION(BlueprintPure, meta = (FriendlyName = "Finalize Query"), Category = "SQLite|Query")
 		static FSQLiteQueryFinalizedQuery QueryFinal(const FSQLiteQueryLogicExpectedNode& QueryEndNode);
 

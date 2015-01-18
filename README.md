@@ -36,9 +36,18 @@ It's really simple.
 
 ## Sample usage
 
+### Blueprints
+
 Here's a screenshot of a query setup with blueprints.
 
 ![alt text](http://i.imgur.com/5BtGuzH.png "Blueprint query sample")
+
+With the database table looking like this:
+
+![alt text](http://i.imgur.com/TLteHL2.png "Blueprint query sample")
+
+
+### C++
 
 And here's a simple sample in C++:
 

@@ -4,7 +4,7 @@
 
 
 USTRUCT(BlueprintType)
-struct FSQLiteQueryLogicExpectedNode
+struct SQLITE3UE4PLUGIN_API FSQLiteQueryLogicExpectedNode
 {
 	GENERATED_USTRUCT_BODY()
 
@@ -19,7 +19,7 @@ struct FSQLiteQueryLogicExpectedNode
 };
 
 USTRUCT(BlueprintType)
-struct FSQLiteQueryTermExpectedNode
+struct SQLITE3UE4PLUGIN_API FSQLiteQueryTermExpectedNode
 {
 	GENERATED_USTRUCT_BODY()
 
@@ -34,7 +34,7 @@ struct FSQLiteQueryTermExpectedNode
 };
 
 USTRUCT(BlueprintType)
-struct FSQLiteQueryFinalizedQuery
+struct SQLITE3UE4PLUGIN_API FSQLiteQueryFinalizedQuery
 {
 	GENERATED_USTRUCT_BODY()
 

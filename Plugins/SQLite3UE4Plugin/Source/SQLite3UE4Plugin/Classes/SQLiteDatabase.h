@@ -3,7 +3,7 @@
 #include "SQLiteDatabase.generated.h"
 
 USTRUCT(BlueprintType)
-struct FSQLiteDatabaseReference
+struct SQLITE3UE4PLUGIN_API FSQLiteDatabaseReference
 {
 	GENERATED_USTRUCT_BODY()
 
@@ -17,7 +17,7 @@ struct FSQLiteDatabaseReference
 };
 
 USTRUCT(BlueprintType)
-struct FSQLiteKeyValuePair
+struct SQLITE3UE4PLUGIN_API FSQLiteKeyValuePair
 {
 	GENERATED_USTRUCT_BODY()
 	
@@ -31,7 +31,7 @@ struct FSQLiteKeyValuePair
 };
 
 USTRUCT(BlueprintType)
-struct FSQLiteQueryResultRow
+struct SQLITE3UE4PLUGIN_API FSQLiteQueryResultRow
 {
 	GENERATED_USTRUCT_BODY()
 
@@ -41,7 +41,7 @@ struct FSQLiteQueryResultRow
 };
 
 USTRUCT(BlueprintType)
-struct FSQLiteQueryResult
+struct SQLITE3UE4PLUGIN_API FSQLiteQueryResult
 {
 	GENERATED_USTRUCT_BODY()
 
@@ -117,7 +117,7 @@ struct SQLiteQueryResult
 * SQLite main database class.
 */
 UCLASS()
-class USQLiteDatabase : public UObject
+class SQLITE3UE4PLUGIN_API USQLiteDatabase : public UObject
 {
 	GENERATED_UCLASS_BODY()
 
@@ -126,6 +126,10 @@ class USQLiteDatabase : public UObject
 		/** Add a database to the list of databases. It will be checked that it's valid (will try to open it) */
 		UFUNCTION(BlueprintCallable, Category = "SQLite")
 		static bool RegisterDatabase(FString Name, FString Filename, bool RelativeToGameContentDirectory);
+
+		/** Checks if the database is registered, ie. that it can be found in Databases. */
+		UFUNCTION(BlueprintCallable, Category = "SQLite")
+		static bool IsDatabaseRegistered(FString DatabaseName);
 
 		/** Get data from the database using a select statement straight into an UObject, ie. populates its properties. */
 		static bool GetDataIntoObject(const FString& DatabaseName, const FString& Query, UObject* ObjectToPopulate);
@@ -147,8 +151,6 @@ class USQLiteDatabase : public UObject
 		static bool IsValidDatabase(FString DatabaseFilename, bool TestByOpening);
 		/** Tries to open a database. */
 		static bool CanOpenDatabase(FString DatabaseFilename);
-		/** Checks if the database is registered, ie. that it can be found in Databases. */
-		static bool IsDatabaseRegistered(FString DatabaseName);
 		/** Collects all properties from an UObject and maps them by the property name. */
 		static TMap<FString, UProperty*> CollectProperties(UObject* SourceObject);
 		/** Constructs an SQL query from the blueprint fed data. */

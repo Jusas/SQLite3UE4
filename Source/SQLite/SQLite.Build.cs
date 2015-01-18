@@ -7,8 +7,10 @@ public class SQLite : ModuleRules
 	public SQLite(TargetInfo Target)
 	{
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore" });
+        PublicDependencyModuleNames.AddRange(new string[] { "SQLite3UE4Plugin" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
+        PublicIncludePaths.AddRange(new string[] { "SQLite3UE4Plugin/Classes" });
 
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });

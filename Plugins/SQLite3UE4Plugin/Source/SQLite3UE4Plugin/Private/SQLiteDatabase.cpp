@@ -103,7 +103,7 @@ bool USQLiteDatabase::GetDataIntoObject(const FString& DatabaseName, const FStri
 
 //--------------------------------------------------------------------------------------------------------------
 
-bool USQLiteDatabase::GetDataIntoObject(const FSQLiteDatabaseReference& DataSource, TArray<FString> Fields, 
+bool USQLiteDatabase::GetDataIntoObjectBP(const FSQLiteDatabaseReference& DataSource, TArray<FString> Fields, 
 	FSQLiteQueryFinalizedQuery Query, UObject* ObjectToPopulate)
 {
 	//////////////////////////////////////////////////////////////////////////
@@ -270,7 +270,7 @@ FSQLiteQueryResult USQLiteDatabase::GetData(const FString& DatabaseName, const F
 
 //--------------------------------------------------------------------------------------------------------------
 
-FSQLiteQueryResult USQLiteDatabase::GetData(const FSQLiteDatabaseReference& DataSource, 
+FSQLiteQueryResult USQLiteDatabase::GetDataBP(const FSQLiteDatabaseReference& DataSource, 
 	TArray<FString> Fields, FSQLiteQueryFinalizedQuery Query, int32 MaxResults, int32 ResultOffset)
 {
 

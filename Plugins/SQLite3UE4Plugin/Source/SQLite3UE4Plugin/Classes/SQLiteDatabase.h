@@ -132,19 +132,21 @@ class SQLITE3UE4PLUGIN_API USQLiteDatabase : public UObject
 		static bool IsDatabaseRegistered(FString DatabaseName);
 
 		/** Get data from the database using a select statement straight into an UObject, ie. populates its properties. */
+		UFUNCTION(BlueprintCallable, Category = "SQLite", meta = (FriendlyName = "Get Data Into Object (manual query)"))
 		static bool GetDataIntoObject(const FString& DatabaseName, const FString& Query, UObject* ObjectToPopulate);
 
 		/** Blueprint: Gets data from the database using a select statement straight into an UObject, ie. populates its properties.
 		*   Note: Does not create a new object. ObjectToPopulate is the reference to the object you want to populate. */
-		UFUNCTION(BlueprintCallable, Category = "SQLite")
-		static bool GetDataIntoObject(const FSQLiteDatabaseReference& DataSource, TArray<FString> Fields, FSQLiteQueryFinalizedQuery Query, UObject* ObjectToPopulate);
+		UFUNCTION(BlueprintCallable, Category = "SQLite", meta = (FriendlyName = "Get Data Into Object"))
+		static bool GetDataIntoObjectBP(const FSQLiteDatabaseReference& DataSource, TArray<FString> Fields, FSQLiteQueryFinalizedQuery Query, UObject* ObjectToPopulate);
 
 		/** Get data from the database using a select statement and return the rows. */
+		UFUNCTION(BlueprintCallable, Category = "SQLite", meta = (FriendlyName = "Get Data From Table(s) (manual query)"))
 		static FSQLiteQueryResult GetData(const FString& DatabaseName, const FString& Query);
 
 		/** Blueprint: Get data from the database. Returns the resulting rows. */
-		UFUNCTION(BlueprintCallable, Category = "SQLite")
-		static FSQLiteQueryResult GetData(const FSQLiteDatabaseReference& DataSource, TArray<FString> Fields, FSQLiteQueryFinalizedQuery Query, int32 MaxResults = -1, int32 ResultOffset = 0);
+		UFUNCTION(BlueprintCallable, Category = "SQLite", meta = (FriendlyName = "Get Data From Table(s)"))
+		static FSQLiteQueryResult GetDataBP(const FSQLiteDatabaseReference& DataSource, TArray<FString> Fields, FSQLiteQueryFinalizedQuery Query, int32 MaxResults = -1, int32 ResultOffset = 0);
 
 	private:
 		/** Checks database validity (if the file exists and/or if it can be opened). */

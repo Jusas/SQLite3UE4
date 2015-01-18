@@ -2,4 +2,4 @@
 
 DEFINE_LOG_CATEGORY(LogDatabase)
 
-IMPLEMENT_MODULE(FDefaultGameModuleImpl, SQLiteUE4Plugin)
+IMPLEMENT_MODULE(FDefaultGameModuleImpl, SQLite3UE4Plugin)

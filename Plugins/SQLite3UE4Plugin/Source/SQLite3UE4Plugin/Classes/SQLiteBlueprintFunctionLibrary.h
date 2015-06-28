@@ -26,8 +26,8 @@ class USQLiteBlueprintFunctionLibrary : public UBlueprintFunctionLibrary
 		UFUNCTION(BlueprintCallable, Category = "SQLite|Value Conversion")
 		static int32 CastToInt(FString SQLiteResultValue);
 
-		UFUNCTION(BlueprintCallable, Category = "SQLite|Value Conversion")
-		static int64 CastToInt64(FString SQLiteResultValue);
+		//UFUNCTION(BlueprintCallable, Category = "SQLite|Value Conversion")
+		//static int64 CastToInt64(FString SQLiteResultValue);
 
 		UFUNCTION(BlueprintCallable, Category = "SQLite|Value Conversion")
 		static bool CastToBoolean(FString SQLiteResultValue);
@@ -35,8 +35,8 @@ class USQLiteBlueprintFunctionLibrary : public UBlueprintFunctionLibrary
 		UFUNCTION(BlueprintCallable, Category = "SQLite|Value Conversion")
 		static float CastToFloat(FString SQLiteResultValue);
 
-		UFUNCTION(BlueprintCallable, Category = "SQLite|Value Conversion")
-		static double CastToDouble(FString SQLiteResultValue);
+		//UFUNCTION(BlueprintCallable, Category = "SQLite|Value Conversion")
+		//static double CastToDouble(FString SQLiteResultValue);
 
 		/** 
 		* Blueprint nodes for building queries.

@@ -18,9 +18,13 @@ bool USQLiteDatabase::RegisterDatabase(FString Name, FString Filename, bool Rela
 {
 	FString actualFilename = Filename;
 
+	//UE_LOG(LogDatabase, Warning, TEXT("SQLLite Plugin: RegisterDatabase() !!!"));
+
 	if (RelativeToGameContentDirectory)
 	{
-		actualFilename = FPaths::GameContentDir() + Filename;
+		actualFilename = FPaths::GameDir() + Filename;
+		//FString message = "!!!!!actualFilename '" + actualFilename ;
+		//LOGSQLITE(Warning, *message);
 	}
 	
 	if (IsDatabaseRegistered(Name))
@@ -32,7 +36,7 @@ bool USQLiteDatabase::RegisterDatabase(FString Name, FString Filename, bool Rela
 
 	if (!IsValidDatabase(actualFilename, true))
 	{
-		FString message = "Unable to add database '" + actualFilename + "', it is not valid (problems opening it)!";
+		FString message = "Unable to add database '" + actualFilename + "', it is not valid (problems opening it +++)!";
 		LOGSQLITE(Error, *message);
 		return false;
 	}

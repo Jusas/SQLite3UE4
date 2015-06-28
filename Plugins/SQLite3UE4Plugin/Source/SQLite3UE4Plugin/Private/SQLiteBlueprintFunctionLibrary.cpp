@@ -31,10 +31,10 @@ int32 USQLiteBlueprintFunctionLibrary::CastToInt(FString SQLiteResultValue)
 
 //--------------------------------------------------------------------------------------------------------------
 
-int64 USQLiteBlueprintFunctionLibrary::CastToInt64(FString SQLiteResultValue)
-{
-	return FCString::Atoi64(*SQLiteResultValue);
-}
+//int64 USQLiteBlueprintFunctionLibrary::CastToInt64(FString SQLiteResultValue)
+//{
+//	return FCString::Atoi64(*SQLiteResultValue);
+//}
 
 //--------------------------------------------------------------------------------------------------------------
 
@@ -52,10 +52,10 @@ float USQLiteBlueprintFunctionLibrary::CastToFloat(FString SQLiteResultValue)
 
 //--------------------------------------------------------------------------------------------------------------
 
-double USQLiteBlueprintFunctionLibrary::CastToDouble(FString SQLiteResultValue)
-{
-	return FCString::Atod(*SQLiteResultValue);
-}
+//double USQLiteBlueprintFunctionLibrary::CastToDouble(FString SQLiteResultValue)
+//{
+//	return FCString::Atod(*SQLiteResultValue);
+//}
 
 //--------------------------------------------------------------------------------------------------------------
 

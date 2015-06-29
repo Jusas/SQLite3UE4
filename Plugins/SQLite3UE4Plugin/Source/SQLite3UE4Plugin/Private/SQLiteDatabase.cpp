@@ -20,9 +20,9 @@ bool USQLiteDatabase::RegisterDatabase(FString Name, FString Filename, bool Rela
 
 	if (RelativeToGameContentDirectory)
 	{
-		actualFilename = FPaths::GameContentDir() + Filename;
+		actualFilename = FPaths::GameDir() + Filename;
 	}
-	
+
 	if (IsDatabaseRegistered(Name))
 	{
 		FString message = "Database '" + actualFilename + "' is already registered, skipping.";
@@ -36,13 +36,13 @@ bool USQLiteDatabase::RegisterDatabase(FString Name, FString Filename, bool Rela
 		LOGSQLITE(Error, *message);
 		return false;
 	}
-	
+
 	Databases.Add(Name, actualFilename);
 
 	FString successMessage = "Registered SQLite database '" + actualFilename + "' successfully.";
 	LOGSQLITE(Verbose, *successMessage);
 	return true;
-	
+
 }
 
 //--------------------------------------------------------------------------------------------------------------
@@ -103,7 +103,7 @@ bool USQLiteDatabase::GetDataIntoObject(const FString& DatabaseName, const FStri
 
 //--------------------------------------------------------------------------------------------------------------
 
-bool USQLiteDatabase::GetDataIntoObjectBP(const FSQLiteDatabaseReference& DataSource, TArray<FString> Fields, 
+bool USQLiteDatabase::GetDataIntoObjectBP(const FSQLiteDatabaseReference& DataSource, TArray<FString> Fields,
 	FSQLiteQueryFinalizedQuery Query, UObject* ObjectToPopulate)
 {
 	//////////////////////////////////////////////////////////////////////////
@@ -172,10 +172,10 @@ bool USQLiteDatabase::GetDataIntoObjectBP(const FSQLiteDatabaseReference& DataSo
 
 TMap<FString, UProperty*> USQLiteDatabase::CollectProperties(UObject* SourceObject)
 {
-	
+
 	UClass* SourceObjectClass = SourceObject->GetClass();
 	TMap<FString, UProperty*> Props;
-	for (TFieldIterator<UProperty> PropIt(SourceObjectClass, EFieldIteratorFlags::SuperClassFlags::IncludeSuper); 
+	for (TFieldIterator<UProperty> PropIt(SourceObjectClass, EFieldIteratorFlags::SuperClassFlags::IncludeSuper);
 		PropIt; ++PropIt)
 	{
 		Props.Add(*PropIt->GetNameCPP(), *PropIt);
@@ -270,7 +270,7 @@ FSQLiteQueryResult USQLiteDatabase::GetData(const FString& DatabaseName, const F
 
 //--------------------------------------------------------------------------------------------------------------
 
-FSQLiteQueryResult USQLiteDatabase::GetDataBP(const FSQLiteDatabaseReference& DataSource, 
+FSQLiteQueryResult USQLiteDatabase::GetDataBP(const FSQLiteDatabaseReference& DataSource,
 	TArray<FString> Fields, FSQLiteQueryFinalizedQuery Query, int32 MaxResults, int32 ResultOffset)
 {
 
@@ -299,12 +299,12 @@ FSQLiteQueryResult USQLiteDatabase::GetDataBP(const FSQLiteDatabaseReference& Da
 	FString constructedQuery = ConstructQuery(DataSource.Tables, Fields, Query, MaxResults, ResultOffset);
 
 	return GetData(DataSource.DatabaseName, constructedQuery);
-	
+
 }
 
 //--------------------------------------------------------------------------------------------------------------
 
-FString USQLiteDatabase::ConstructQuery(TArray<FString> Tables, TArray<FString> Fields, 
+FString USQLiteDatabase::ConstructQuery(TArray<FString> Tables, TArray<FString> Fields,
 	FSQLiteQueryFinalizedQuery QueryObject, int32 MaxResults, int32 ResultOffset)
 {
 	FString fieldString;
@@ -340,18 +340,111 @@ FString USQLiteDatabase::ConstructQuery(TArray<FString> Tables, TArray<FString> 
 
 //--------------------------------------------------------------------------------------------------------------
 
+void USQLiteDatabase::PrepareStatement(const FString* DatabaseName, const FString* Query, sqlite3** db, int32** sqlReturnCode,
+	sqlite3_stmt** preparedStatement) {
+
+	ANSICHAR* dbNameAsUtf8 = TCHAR_TO_UTF8(*Databases[**DatabaseName]);
+
+	int32 i = sqlite3_open(dbNameAsUtf8, db);
+
+	**sqlReturnCode = i;
+
+	ANSICHAR* queryAsUtf8 = TCHAR_TO_UTF8(**Query);
+
+	**sqlReturnCode = sqlite3_prepare_v2(*db, queryAsUtf8, -1, preparedStatement, NULL);
+}
+
+//--------------------------------------------------------------------------------------------------------------
+
+bool USQLiteDatabase::CreateTable(const FString DatabaseName, const FString tableName,
+	const TArray<FString> Fields, const FString PK)
+{
+	FSQLiteQueryResult result;
+
+	FString query = "";
+	query += "CREATE TABLE IF NOT EXISTS ";
+	query += tableName;
+	query += "(";
+
+	bool singlePrimaryKeyExists = false;
+
+	for (const FString& field : Fields)
+	{
+		if (field.Len() > 2) {
+
+			if (field.Contains("PRIMARY KEY")) {
+					singlePrimaryKeyExists = true;
+			}
+
+			query += field + ", ";
+
+		}
+
+	}
+
+	if (singlePrimaryKeyExists) {
+		query = query.Left(query.Len() - 2);
+
+		query += ");";
+	}
+	else {
+		if (PK.Len() > 2) {
+			query += " " + PK + " ";
+		}
+		else {
+			query = query.Left(query.Len() - 2);
+		}
+		
+		query += ");";
+	}
+
+	LOGSQLITE(Warning, *query);
+
+	bool success = false;
+
+	char *zErrMsg = 0;
+	sqlite3 *db;
+
+	ANSICHAR* dbNameAsUtf8 = TCHAR_TO_UTF8(*Databases[DatabaseName]);
+	int32 i = sqlite3_open(dbNameAsUtf8, &db);
+
+	if (i == SQLITE_OK){
+
+		int32 k = sqlite3_exec(db, TCHAR_TO_UTF8(*query), NULL, 0, &zErrMsg);
+
+		if (i == SQLITE_OK){
+			success = true;
+		}
+		else {
+			LOGSQLITE(Warning, TEXT("CreateTable - Query Exec Failed.."));
+		}
+
+
+	}
+	else {
+		LOGSQLITE(Warning, TEXT("CreateTable - DB Open failed.."));
+	}
+
+	sqlite3_close(db);
+
+	return success;
+
+}
+
+//--------------------------------------------------------------------------------------------------------------
+
 SQLiteQueryResult USQLiteDatabase::RunQueryAndGetResults(FString DatabaseName, FString Query)
 {
-	sqlite3* db;
-	ANSICHAR* dbNameAsUtf8 = TCHAR_TO_UTF8(*Databases[DatabaseName]);
 	SQLiteQueryResult result;
 
-	int32 sqlReturnCode = sqlite3_open(dbNameAsUtf8, &db);
-
+	sqlite3* db;
+	int32 sqlReturnCode = 0;
+	int32* sqlReturnCode1 = &sqlReturnCode;
 	sqlite3_stmt* preparedStatement;
-	ANSICHAR* queryAsUtf8 = TCHAR_TO_UTF8(*Query);
 
-	sqlReturnCode = sqlite3_prepare_v2(db, queryAsUtf8, -1, &preparedStatement, NULL);
+	PrepareStatement(&DatabaseName, &Query, &db, &sqlReturnCode1, &preparedStatement);
+	sqlReturnCode = *sqlReturnCode1;
+
 	if (sqlReturnCode != SQLITE_OK)
 	{
 		const char* errorMessage = sqlite3_errmsg(db);
@@ -371,8 +464,8 @@ SQLiteQueryResult USQLiteDatabase::RunQueryAndGetResults(FString DatabaseName, F
 
 	TArray<SQLiteResultValue> resultRows;
 
-	for (sqlReturnCode = sqlite3_step(preparedStatement); 
-		sqlReturnCode != SQLITE_DONE && sqlReturnCode == SQLITE_ROW; 
+	for (sqlReturnCode = sqlite3_step(preparedStatement);
+		sqlReturnCode != SQLITE_DONE && sqlReturnCode == SQLITE_ROW;
 		sqlReturnCode = sqlite3_step(preparedStatement))
 	{
 		SQLiteResultValue row;

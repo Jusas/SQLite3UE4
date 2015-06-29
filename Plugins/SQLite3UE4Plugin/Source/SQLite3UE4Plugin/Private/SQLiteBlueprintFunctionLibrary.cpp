@@ -31,10 +31,10 @@ int32 USQLiteBlueprintFunctionLibrary::CastToInt(FString SQLiteResultValue)
 
 //--------------------------------------------------------------------------------------------------------------
 
-int64 USQLiteBlueprintFunctionLibrary::CastToInt64(FString SQLiteResultValue)
-{
-	return FCString::Atoi64(*SQLiteResultValue);
-}
+//int64 USQLiteBlueprintFunctionLibrary::CastToInt64(FString SQLiteResultValue)
+//{
+//	return FCString::Atoi64(*SQLiteResultValue);
+//}
 
 //--------------------------------------------------------------------------------------------------------------
 
@@ -52,10 +52,10 @@ float USQLiteBlueprintFunctionLibrary::CastToFloat(FString SQLiteResultValue)
 
 //--------------------------------------------------------------------------------------------------------------
 
-double USQLiteBlueprintFunctionLibrary::CastToDouble(FString SQLiteResultValue)
-{
-	return FCString::Atod(*SQLiteResultValue);
-}
+//double USQLiteBlueprintFunctionLibrary::CastToDouble(FString SQLiteResultValue)
+//{
+//	return FCString::Atod(*SQLiteResultValue);
+//}
 
 //--------------------------------------------------------------------------------------------------------------
 
@@ -96,4 +96,94 @@ FSQLiteQueryTermExpectedNode USQLiteBlueprintFunctionLibrary::QueryLogicOr(const
 FSQLiteQueryFinalizedQuery USQLiteBlueprintFunctionLibrary::QueryFinal(const FSQLiteQueryLogicExpectedNode& QueryEndNode)
 {
 	return FSQLiteQueryFinalizedQuery(QueryEndNode.Query);
+}
+
+FString USQLiteBlueprintFunctionLibrary::SQLiteINTEGER(const FString fieldName, const bool PK, const bool AI, 
+	FString &forPrimaryKey, const bool Unique)
+{
+	FString outStr = fieldName + " INTEGER ";
+	if (PK && AI) {
+		outStr += " PRIMARY KEY AUTOINCREMENT ";
+	}
+	else if (AI) {
+		outStr += " PRIMARY KEY AUTOINCREMENT ";
+	}
+	else if (PK) {
+		forPrimaryKey = fieldName;
+	}
+
+	if (Unique) {
+		outStr += " UNIQUE ";
+	}
+
+	return outStr;
+}
+
+FString USQLiteBlueprintFunctionLibrary::SQLiteTEXT(const FString fieldName, const bool PK, 
+	FString &forPrimaryKey, const bool Unique)
+{
+	if (PK) {
+		forPrimaryKey = fieldName;
+	}
+	FString outStr = fieldName + " TEXT ";
+	if (Unique) {
+		outStr += " UNIQUE ";
+	}
+
+	return outStr;
+}
+
+FString USQLiteBlueprintFunctionLibrary::SQLiteREAL(const FString fieldName, const bool PK, 
+	FString &forPrimaryKey, const bool Unique)
+{
+	if (PK) {
+		forPrimaryKey = fieldName;
+	}
+
+	FString outStr = fieldName + " REAL ";
+	if (Unique) {
+		outStr += " UNIQUE ";
+	}
+
+	return outStr;
+
+}
+
+FString USQLiteBlueprintFunctionLibrary::SQLiteNUMERIC(const FString fieldName, const bool PK, 
+	FString &forPrimaryKey, const bool Unique)
+{
+	if (PK) {
+		forPrimaryKey = fieldName;
+	}
+
+	FString outStr = fieldName + " NUMERIC ";
+	if (Unique) {
+		outStr += " UNIQUE ";
+	}
+
+	return outStr;
+
+}
+
+FString USQLiteBlueprintFunctionLibrary::SQLitePrimaryKey(const TArray<FString> Fields)
+{
+	
+	FString i = "";
+	for (const FString& field : Fields) {
+		if (field.Len()>1) {
+			i += field + ", ";
+		}
+	}
+
+	FString o = "";
+
+	if (i.Len() > 1) {
+		o = " PRIMARY KEY( ";
+		o += i;
+		o = o.Left(o.Len() - 2);
+		o += ")";
+	}
+
+	
+	return o;
 }

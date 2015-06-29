@@ -132,21 +132,26 @@ class SQLITE3UE4PLUGIN_API USQLiteDatabase : public UObject
 		static bool IsDatabaseRegistered(FString DatabaseName);
 
 		/** Get data from the database using a select statement straight into an UObject, ie. populates its properties. */
-		UFUNCTION(BlueprintCallable, Category = "SQLite", meta = (FriendlyName = "Get Data Into Object (manual query)"))
+		UFUNCTION(BlueprintCallable, Category = "SQLite", meta = (DisplayName = "Get Data Into Object (manual query)"))
 		static bool GetDataIntoObject(const FString& DatabaseName, const FString& Query, UObject* ObjectToPopulate);
 
 		/** Blueprint: Gets data from the database using a select statement straight into an UObject, ie. populates its properties.
 		*   Note: Does not create a new object. ObjectToPopulate is the reference to the object you want to populate. */
-		UFUNCTION(BlueprintCallable, Category = "SQLite", meta = (FriendlyName = "Get Data Into Object"))
+		UFUNCTION(BlueprintCallable, Category = "SQLite", meta = (DisplayName = "Get Data Into Object"))
 		static bool GetDataIntoObjectBP(const FSQLiteDatabaseReference& DataSource, TArray<FString> Fields, FSQLiteQueryFinalizedQuery Query, UObject* ObjectToPopulate);
 
 		/** Get data from the database using a select statement and return the rows. */
-		UFUNCTION(BlueprintCallable, Category = "SQLite", meta = (FriendlyName = "Get Data From Table(s) (manual query)"))
+		UFUNCTION(BlueprintCallable, Category = "SQLite", meta = (DisplayName = "Get Data From Table(s) (manual query)"))
 		static FSQLiteQueryResult GetData(const FString& DatabaseName, const FString& Query);
 
 		/** Blueprint: Get data from the database. Returns the resulting rows. */
-		UFUNCTION(BlueprintCallable, Category = "SQLite", meta = (FriendlyName = "Get Data From Table(s)"))
+		UFUNCTION(BlueprintCallable, Category = "SQLite", meta = (DisplayName = "Get Data From Table(s)"))
 		static FSQLiteQueryResult GetDataBP(const FSQLiteDatabaseReference& DataSource, TArray<FString> Fields, FSQLiteQueryFinalizedQuery Query, int32 MaxResults = -1, int32 ResultOffset = 0);
+
+		/** Create table in the database. */
+		UFUNCTION(BlueprintCallable, Category = "SQLite|Query", meta = (DisplayName = "Create Table"))
+		static bool CreateTable(const FString DatabaseName, const FString TableName,
+			const TArray<FString> Fields, const FString PK);
 
 	private:
 		/** Checks database validity (if the file exists and/or if it can be opened). */
@@ -161,6 +166,8 @@ class SQLITE3UE4PLUGIN_API USQLiteDatabase : public UObject
 		static SQLiteQueryResult RunQueryAndGetResults(FString DatabaseName, FString Query);
 		/** Assigns a result row's fields' values to an UObject, ie. assigns them to the properties that have the same name. */
 		static void AssignResultsToObjectProperties(const SQLiteResultValue& ResultValue, UObject* ObjectToPopulate);
+		static void PrepareStatement(const FString* DatabaseName, const FString* Query, sqlite3** Db, int32** SqlReturnCode,
+			sqlite3_stmt** PreparedStatement);
 
 	private:
 		/** A list of the databases for convenience, easier to refer to them by name rather than a long filename. */

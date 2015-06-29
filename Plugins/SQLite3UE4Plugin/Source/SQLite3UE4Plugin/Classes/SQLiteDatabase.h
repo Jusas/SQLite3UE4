@@ -150,7 +150,7 @@ class SQLITE3UE4PLUGIN_API USQLiteDatabase : public UObject
 
 		/** Create table in the database. */
 		UFUNCTION(BlueprintCallable, Category = "SQLite|Query", meta = (DisplayName = "Create Table"))
-			static bool CreateTable(const FString DatabaseName, const FString tableName,
+		static bool CreateTable(const FString DatabaseName, const FString TableName,
 			const TArray<FString> Fields, const FString PK);
 
 	private:
@@ -166,8 +166,8 @@ class SQLITE3UE4PLUGIN_API USQLiteDatabase : public UObject
 		static SQLiteQueryResult RunQueryAndGetResults(FString DatabaseName, FString Query);
 		/** Assigns a result row's fields' values to an UObject, ie. assigns them to the properties that have the same name. */
 		static void AssignResultsToObjectProperties(const SQLiteResultValue& ResultValue, UObject* ObjectToPopulate);
-		static void PrepareStatement(const FString* DatabaseName, const FString* Query, sqlite3** db, int32** sqlReturnCode,
-			sqlite3_stmt** preparedStatement);
+		static void PrepareStatement(const FString* DatabaseName, const FString* Query, sqlite3** Db, int32** SqlReturnCode,
+			sqlite3_stmt** PreparedStatement);
 
 	private:
 		/** A list of the databases for convenience, easier to refer to them by name rather than a long filename. */

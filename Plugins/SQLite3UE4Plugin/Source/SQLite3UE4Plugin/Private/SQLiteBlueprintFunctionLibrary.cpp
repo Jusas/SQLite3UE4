@@ -98,10 +98,10 @@ FSQLiteQueryFinalizedQuery USQLiteBlueprintFunctionLibrary::QueryFinal(const FSQ
 	return FSQLiteQueryFinalizedQuery(QueryEndNode.Query);
 }
 
-FString USQLiteBlueprintFunctionLibrary::SQLiteINTEGER(const FString fieldName, const bool PK, const bool AI, 
-	FString &forPrimaryKey, const bool Unique)
+FString USQLiteBlueprintFunctionLibrary::SQLiteINTEGER(const FString FieldName, const bool PK, const bool AI, 
+	FString &ForPrimaryKey, const bool Unique)
 {
-	FString outStr = fieldName + " INTEGER ";
+	FString outStr = FieldName + " INTEGER ";
 	if (PK && AI) {
 		outStr += " PRIMARY KEY AUTOINCREMENT ";
 	}
@@ -109,7 +109,7 @@ FString USQLiteBlueprintFunctionLibrary::SQLiteINTEGER(const FString fieldName, 
 		outStr += " PRIMARY KEY AUTOINCREMENT ";
 	}
 	else if (PK) {
-		forPrimaryKey = fieldName;
+		ForPrimaryKey = FieldName;
 	}
 
 	if (Unique) {
@@ -119,13 +119,13 @@ FString USQLiteBlueprintFunctionLibrary::SQLiteINTEGER(const FString fieldName, 
 	return outStr;
 }
 
-FString USQLiteBlueprintFunctionLibrary::SQLiteTEXT(const FString fieldName, const bool PK, 
-	FString &forPrimaryKey, const bool Unique)
+FString USQLiteBlueprintFunctionLibrary::SQLiteTEXT(const FString FieldName, const bool PK,
+	FString &ForPrimaryKey, const bool Unique)
 {
 	if (PK) {
-		forPrimaryKey = fieldName;
+		ForPrimaryKey = FieldName;
 	}
-	FString outStr = fieldName + " TEXT ";
+	FString outStr = FieldName + " TEXT ";
 	if (Unique) {
 		outStr += " UNIQUE ";
 	}
@@ -133,14 +133,14 @@ FString USQLiteBlueprintFunctionLibrary::SQLiteTEXT(const FString fieldName, con
 	return outStr;
 }
 
-FString USQLiteBlueprintFunctionLibrary::SQLiteREAL(const FString fieldName, const bool PK, 
-	FString &forPrimaryKey, const bool Unique)
+FString USQLiteBlueprintFunctionLibrary::SQLiteREAL(const FString FieldName, const bool PK,
+	FString &ForPrimaryKey, const bool Unique)
 {
 	if (PK) {
-		forPrimaryKey = fieldName;
+		ForPrimaryKey = FieldName;
 	}
 
-	FString outStr = fieldName + " REAL ";
+	FString outStr = FieldName + " REAL ";
 	if (Unique) {
 		outStr += " UNIQUE ";
 	}
@@ -149,14 +149,14 @@ FString USQLiteBlueprintFunctionLibrary::SQLiteREAL(const FString fieldName, con
 
 }
 
-FString USQLiteBlueprintFunctionLibrary::SQLiteNUMERIC(const FString fieldName, const bool PK, 
-	FString &forPrimaryKey, const bool Unique)
+FString USQLiteBlueprintFunctionLibrary::SQLiteNUMERIC(const FString FieldName, const bool PK,
+	FString &ForPrimaryKey, const bool Unique)
 {
 	if (PK) {
-		forPrimaryKey = fieldName;
+		ForPrimaryKey = FieldName;
 	}
 
-	FString outStr = fieldName + " NUMERIC ";
+	FString outStr = FieldName + " NUMERIC ";
 	if (Unique) {
 		outStr += " UNIQUE ";
 	}

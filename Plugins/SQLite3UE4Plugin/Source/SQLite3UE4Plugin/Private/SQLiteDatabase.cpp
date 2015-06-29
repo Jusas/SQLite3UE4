@@ -340,30 +340,30 @@ FString USQLiteDatabase::ConstructQuery(TArray<FString> Tables, TArray<FString> 
 
 //--------------------------------------------------------------------------------------------------------------
 
-void USQLiteDatabase::PrepareStatement(const FString* DatabaseName, const FString* Query, sqlite3** db, int32** sqlReturnCode,
-	sqlite3_stmt** preparedStatement) {
+void USQLiteDatabase::PrepareStatement(const FString* DatabaseName, const FString* Query, sqlite3** Db, int32** SqlReturnCode,
+	sqlite3_stmt** PreparedStatement) {
 
 	ANSICHAR* dbNameAsUtf8 = TCHAR_TO_UTF8(*Databases[**DatabaseName]);
 
-	int32 i = sqlite3_open(dbNameAsUtf8, db);
+	int32 i = sqlite3_open(dbNameAsUtf8, Db);
 
-	**sqlReturnCode = i;
+	**SqlReturnCode = i;
 
 	ANSICHAR* queryAsUtf8 = TCHAR_TO_UTF8(**Query);
 
-	**sqlReturnCode = sqlite3_prepare_v2(*db, queryAsUtf8, -1, preparedStatement, NULL);
+	**SqlReturnCode = sqlite3_prepare_v2(*Db, queryAsUtf8, -1, PreparedStatement, NULL);
 }
 
 //--------------------------------------------------------------------------------------------------------------
 
-bool USQLiteDatabase::CreateTable(const FString DatabaseName, const FString tableName,
+bool USQLiteDatabase::CreateTable(const FString DatabaseName, const FString TableName,
 	const TArray<FString> Fields, const FString PK)
 {
 	FSQLiteQueryResult result;
 
 	FString query = "";
 	query += "CREATE TABLE IF NOT EXISTS ";
-	query += tableName;
+	query += TableName;
 	query += "(";
 
 	bool singlePrimaryKeyExists = false;

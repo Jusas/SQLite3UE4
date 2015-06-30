@@ -357,9 +357,10 @@ void USQLiteDatabase::PrepareStatement(const FString* DatabaseName, const FStrin
 //--------------------------------------------------------------------------------------------------------------
 
 bool USQLiteDatabase::CreateTable(const FString DatabaseName, const FString TableName,
-	const TArray<FString> Fields, const FString PK)
+	const TArray<FString> Fields, const FString PK, FString &TableNameOutput)
 {
-	FSQLiteQueryResult result;
+
+	TableNameOutput = TableName;
 
 	FString query = "";
 	query += "CREATE TABLE IF NOT EXISTS ";
@@ -373,7 +374,7 @@ bool USQLiteDatabase::CreateTable(const FString DatabaseName, const FString Tabl
 		if (field.Len() > 2) {
 
 			if (field.Contains("PRIMARY KEY")) {
-					singlePrimaryKeyExists = true;
+				singlePrimaryKeyExists = true;
 			}
 
 			query += field + ", ";
@@ -394,13 +395,37 @@ bool USQLiteDatabase::CreateTable(const FString DatabaseName, const FString Tabl
 		else {
 			query = query.Left(query.Len() - 2);
 		}
-		
+
 		query += ");";
 	}
 
-	LOGSQLITE(Warning, *query);
+	return ExecSql(DatabaseName, query);
 
-	bool success = false;
+}
+
+//--------------------------------------------------------------------------------------------------------------
+
+bool USQLiteDatabase::DropTable(const FString DatabaseName, const FString TableName)
+{
+	bool idxCrSts = true;
+
+
+	FString query = "DROP TABLE " + TableName;
+
+	//LOGSQLITE(Warning, *query);
+
+	idxCrSts = ExecSql(DatabaseName, query);
+
+	return idxCrSts;
+
+}
+
+//--------------------------------------------------------------------------------------------------------------
+
+bool USQLiteDatabase::ExecSql(const FString DatabaseName, const FString Query) {
+	//LOGSQLITE(Warning, *query);
+
+	bool execStatus = false;
 
 	char *zErrMsg = 0;
 	sqlite3 *db;
@@ -410,10 +435,10 @@ bool USQLiteDatabase::CreateTable(const FString DatabaseName, const FString Tabl
 
 	if (i == SQLITE_OK){
 
-		int32 k = sqlite3_exec(db, TCHAR_TO_UTF8(*query), NULL, 0, &zErrMsg);
+		int32 k = sqlite3_exec(db, TCHAR_TO_UTF8(*Query), NULL, 0, &zErrMsg);
 
 		if (i == SQLITE_OK){
-			success = true;
+			execStatus = true;
 		}
 		else {
 			LOGSQLITE(Warning, TEXT("CreateTable - Query Exec Failed.."));
@@ -427,7 +452,66 @@ bool USQLiteDatabase::CreateTable(const FString DatabaseName, const FString Tabl
 
 	sqlite3_close(db);
 
-	return success;
+	return execStatus;
+}
+
+//--------------------------------------------------------------------------------------------------------------
+
+bool USQLiteDatabase::CreateIndexes(const FString DatabaseName, const FString TableName, const TArray<FString> Indexes)
+{
+	bool idxCrSts = true;
+
+	for (const FString& idx : Indexes)
+	{
+		if (idx.Len() > 2) {
+			FString query = idx.Replace(TEXT("$$$TABLE_NAME$$$"), *TableName);
+
+			//LOGSQLITE(Warning, *query);
+
+			idxCrSts = ExecSql(DatabaseName, query);
+			if (!idxCrSts) {
+				//LOGSQLITE(Warning, TEXT("ExecSql break"));
+				break;
+			}
+		}
+
+	}
+	
+	return idxCrSts;
+
+}
+
+//--------------------------------------------------------------------------------------------------------------
+
+bool USQLiteDatabase::CreateIndex(const FString DatabaseName, const FString TableName, const FString Index)
+{
+	bool idxCrSts = true;
+
+
+	FString query = Index.Replace(TEXT("$$$TABLE_NAME$$$"), *TableName);
+
+	//LOGSQLITE(Warning, *query);
+
+	idxCrSts = ExecSql(DatabaseName, query);
+
+	return idxCrSts;
+
+}
+
+//--------------------------------------------------------------------------------------------------------------
+
+bool USQLiteDatabase::DropIndex(const FString DatabaseName, const FString IndexName)
+{
+	bool idxCrSts = true;
+
+
+	FString query = "DROP INDEX " + IndexName;
+
+	//LOGSQLITE(Warning, *query);
+
+	idxCrSts = ExecSql(DatabaseName, query);
+
+	return idxCrSts;
 
 }
 

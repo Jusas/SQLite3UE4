@@ -99,8 +99,11 @@ FSQLiteQueryFinalizedQuery USQLiteBlueprintFunctionLibrary::QueryFinal(const FSQ
 }
 
 FString USQLiteBlueprintFunctionLibrary::SQLiteINTEGER(const FString FieldName, const bool PK, const bool AI, 
-	FString &ForPrimaryKey, const bool Unique)
+	FString &ForPrimaryKey, const bool Unique, FString &FieldNameOutput)
 {
+
+	FieldNameOutput = FieldName;
+
 	FString outStr = FieldName + " INTEGER ";
 	if (PK && AI) {
 		outStr += " PRIMARY KEY AUTOINCREMENT ";
@@ -120,8 +123,10 @@ FString USQLiteBlueprintFunctionLibrary::SQLiteINTEGER(const FString FieldName, 
 }
 
 FString USQLiteBlueprintFunctionLibrary::SQLiteTEXT(const FString FieldName, const bool PK,
-	FString &ForPrimaryKey, const bool Unique)
+	FString &ForPrimaryKey, const bool Unique, FString &FieldNameOutput)
 {
+	FieldNameOutput = FieldName;
+
 	if (PK) {
 		ForPrimaryKey = FieldName;
 	}
@@ -134,8 +139,11 @@ FString USQLiteBlueprintFunctionLibrary::SQLiteTEXT(const FString FieldName, con
 }
 
 FString USQLiteBlueprintFunctionLibrary::SQLiteREAL(const FString FieldName, const bool PK,
-	FString &ForPrimaryKey, const bool Unique)
+	FString &ForPrimaryKey, const bool Unique, FString &FieldNameOutput)
 {
+
+	FieldNameOutput = FieldName;
+
 	if (PK) {
 		ForPrimaryKey = FieldName;
 	}
@@ -150,8 +158,11 @@ FString USQLiteBlueprintFunctionLibrary::SQLiteREAL(const FString FieldName, con
 }
 
 FString USQLiteBlueprintFunctionLibrary::SQLiteNUMERIC(const FString FieldName, const bool PK,
-	FString &ForPrimaryKey, const bool Unique)
+	FString &ForPrimaryKey, const bool Unique, FString &FieldNameOutput)
 {
+
+	FieldNameOutput = FieldName;
+
 	if (PK) {
 		ForPrimaryKey = FieldName;
 	}
@@ -186,4 +197,24 @@ FString USQLiteBlueprintFunctionLibrary::SQLitePrimaryKey(const TArray<FString> 
 
 	
 	return o;
+}
+
+FString USQLiteBlueprintFunctionLibrary::SQLiteIndex(const TArray<FString> Fields, FString idxName, bool Unique) {
+	FString o = "CREATE ";
+
+	if (Unique) {
+		o += "UNIQUE ";
+	}
+
+	o += "INDEX " + idxName+" ON $$$TABLE_NAME$$$ (";
+
+	for (const FString fld : Fields) {
+		o += fld + ", ";
+	}
+
+	o = o.Left(o.Len() - 2);
+	o += ");";
+
+	return o;
+	
 }

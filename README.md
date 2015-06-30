@@ -46,8 +46,8 @@ With the database table looking like this:
 
 ![alt text](http://i.imgur.com/TLteHL2.png "Blueprint query sample")
 
-Create table sample:
-![alt text](https://raw.githubusercontent.com/KhArtNJava/SQLite3UE4/b153fc61af782bb28deca92bf7aacb822fb949fe/Docs/CreateTableExample.png "Blueprint Create table sample")
+Create table, Create index, Drop index, Drop table sample:
+![alt text](https://github.com/KhArtNJava/SQLite3UE4/blob/master/Docs/CreateTableExample2.png?raw=true "Blueprint Create table, Create index, Drop index, Drop table sample")
 
 
 ### C++

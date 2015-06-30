@@ -68,22 +68,25 @@ class USQLiteBlueprintFunctionLibrary : public UBlueprintFunctionLibrary
 
 		UFUNCTION(BlueprintPure, meta = (DisplayName = "INTEGER (SQLite)"), Category = "SQLite|Query|DataTypes")
 		static FString SQLiteINTEGER( FString FieldName, const bool PK, const bool AI, 
-		FString &ForPrimaryKey, const bool Unique);
+		FString &ForPrimaryKey, const bool Unique, FString &FieldNameOutput);
 
 		UFUNCTION(BlueprintPure, meta = (DisplayName = "TEXT (SQLite)"), Category = "SQLite|Query|DataTypes")
 			static FString SQLiteTEXT(const FString FieldName, const bool PK,
-		FString &ForPrimaryKey, const bool Unique);
+		FString &ForPrimaryKey, const bool Unique, FString &FieldNameOutput);
 
 		UFUNCTION(BlueprintPure, meta = (DisplayName = "REAL (SQLite)"), Category = "SQLite|Query|DataTypes")
 			static FString SQLiteREAL(const FString FieldName, const bool PK,
-		FString &ForPrimaryKey, const bool Unique);
+		FString &ForPrimaryKey, const bool Uniqu, FString &FieldNameOutpute);
 
 		UFUNCTION(BlueprintPure, meta = (DisplayName = "NUMERIC (SQLite)"), Category = "SQLite|Query|DataTypes")
 			static FString SQLiteNUMERIC(const FString FieldName, const bool PK,
-		FString &ForPrimaryKey, const bool Unique);
+		FString &ForPrimaryKey, const bool Unique, FString &FieldNameOutput);
 
 		UFUNCTION(BlueprintPure, meta = (DisplayName = "Primary Key (SQLite)"), Category = "SQLite|Query|DataTypes")
 		static FString SQLitePrimaryKey(const TArray<FString> Fields);
+
+		UFUNCTION(BlueprintPure, meta = (DisplayName = "Index (SQLite)"), Category = "SQLite|Query|DataTypes")
+		static FString SQLiteIndex(const TArray<FString> Fields, FString idxName, bool Unique);
 		
 
 

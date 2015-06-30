@@ -151,7 +151,23 @@ class SQLITE3UE4PLUGIN_API USQLiteDatabase : public UObject
 		/** Create table in the database. */
 		UFUNCTION(BlueprintCallable, Category = "SQLite|Query", meta = (DisplayName = "Create Table"))
 		static bool CreateTable(const FString DatabaseName, const FString TableName,
-			const TArray<FString> Fields, const FString PK);
+			const TArray<FString> Fields, const FString PK, FString &TableNameOutput);
+
+		/** Create indexes for table */
+		UFUNCTION(BlueprintCallable, Category = "SQLite|Query", meta = (DisplayName = "Create Indexes"))
+		static bool CreateIndexes(const FString DatabaseName, const FString TableName, const TArray<FString> Indexes);
+
+		/** Create index for table */
+		UFUNCTION(BlueprintCallable, Category = "SQLite|Query", meta = (DisplayName = "Create Index"))
+		static bool CreateIndex(const FString DatabaseName, const FString TableName, const FString Index);
+
+		/** Drop index*/
+		UFUNCTION(BlueprintCallable, Category = "SQLite|Query", meta = (DisplayName = "Drop Index"))
+		static bool DropIndex(const FString DatabaseName, const FString IndexName);
+
+		/** Drop index*/
+		UFUNCTION(BlueprintCallable, Category = "SQLite|Query", meta = (DisplayName = "Drop Table"))
+		static bool DropTable(const FString DatabaseName, const FString TableName);
 
 	private:
 		/** Checks database validity (if the file exists and/or if it can be opened). */
@@ -168,6 +184,7 @@ class SQLITE3UE4PLUGIN_API USQLiteDatabase : public UObject
 		static void AssignResultsToObjectProperties(const SQLiteResultValue& ResultValue, UObject* ObjectToPopulate);
 		static void PrepareStatement(const FString* DatabaseName, const FString* Query, sqlite3** Db, int32** SqlReturnCode,
 			sqlite3_stmt** PreparedStatement);
+		static bool ExecSql(const FString DatabaseName, const FString Query);
 
 	private:
 		/** A list of the databases for convenience, easier to refer to them by name rather than a long filename. */

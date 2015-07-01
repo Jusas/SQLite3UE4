@@ -1,4 +1,5 @@
 #pragma once
+#include "sqlite3.h"
 #include "SQLiteBlueprintNodes.h"
 #include "SQLiteDatabase.generated.h"
 

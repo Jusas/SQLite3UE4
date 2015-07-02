@@ -4,6 +4,46 @@
 #include "SQLiteDatabase.generated.h"
 
 USTRUCT(BlueprintType)
+struct SQLITE3UE4PLUGIN_API FSQLiteIndex
+{
+	GENERATED_USTRUCT_BODY()
+
+		/** String with piece if SQL script*/
+		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SQLite Index")
+		FString ResultStr = "";
+
+		/** Field name*/
+		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SQLite Index")
+		FString IndexName = "";
+
+};
+
+USTRUCT(BlueprintType)
+struct SQLITE3UE4PLUGIN_API FSQLitePrimaryKey
+{
+	GENERATED_USTRUCT_BODY()
+
+		/** String with piece if SQL script*/
+		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SQLite Primary Key")
+		FString ResultStr = "";
+};
+
+USTRUCT(BlueprintType)
+struct SQLITE3UE4PLUGIN_API FSQLiteTableField
+{
+	GENERATED_USTRUCT_BODY()
+
+		/** String with piece if SQL script*/
+		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SQLite Table Field")
+		FString ResultStr = "";
+
+	/** Field name*/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SQLite Table Field")
+		FString FieldName = "";
+
+};
+
+USTRUCT(BlueprintType)
 struct SQLITE3UE4PLUGIN_API FSQLiteDatabaseReference
 {
 	GENERATED_USTRUCT_BODY()
@@ -152,15 +192,15 @@ public:
 	/** Create table in the database. */
 	UFUNCTION(BlueprintCallable, Category = "SQLite|Query", meta = (DisplayName = "Create Table"))
 		static bool CreateTable(const FString DatabaseName, const FString TableName,
-		const TArray<FString> Fields, const FString PK, FString &TableNameOutput);
+		const TArray<FSQLiteTableField> Fields, const FSQLitePrimaryKey PK, FString &TableNameOutput);
 
 	/** Create indexes for table */
 	UFUNCTION(BlueprintCallable, Category = "SQLite|Query", meta = (DisplayName = "Create Indexes"))
-		static bool CreateIndexes(const FString DatabaseName, const FString TableName, const TArray<FString> Indexes);
+		static bool CreateIndexes(const FString DatabaseName, const FString TableName, const TArray<FSQLiteIndex> Indexes);
 
 	/** Create index for table */
 	UFUNCTION(BlueprintCallable, Category = "SQLite|Query", meta = (DisplayName = "Create Index"))
-		static bool CreateIndex(const FString DatabaseName, const FString TableName, const FString Index);
+		static bool CreateIndex(const FString DatabaseName, const FString TableName, const FSQLiteIndex Index);
 
 	/** Drop index*/
 	UFUNCTION(BlueprintCallable, Category = "SQLite|Query", meta = (DisplayName = "Drop Index"))

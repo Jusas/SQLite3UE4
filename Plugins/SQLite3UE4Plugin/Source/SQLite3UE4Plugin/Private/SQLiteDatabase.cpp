@@ -357,7 +357,7 @@ void USQLiteDatabase::PrepareStatement(const FString* DatabaseName, const FStrin
 //--------------------------------------------------------------------------------------------------------------
 
 bool USQLiteDatabase::CreateTable(const FString DatabaseName, const FString TableName,
-	const TArray<FString> Fields, const FString PK, FString &TableNameOutput)
+	const TArray<FSQLiteTableField> Fields, const FSQLitePrimaryKey PK, FString &TableNameOutput)
 {
 
 	TableNameOutput = TableName;
@@ -369,15 +369,15 @@ bool USQLiteDatabase::CreateTable(const FString DatabaseName, const FString Tabl
 
 	bool singlePrimaryKeyExists = false;
 
-	for (const FString& field : Fields)
+	for (const FSQLiteTableField& field : Fields)
 	{
-		if (field.Len() > 2) {
+		if (field.ResultStr.Len() > 2) {
 
-			if (field.Contains("PRIMARY KEY")) {
+			if (field.ResultStr.Contains("PRIMARY KEY")) {
 				singlePrimaryKeyExists = true;
 			}
 
-			query += field + ", ";
+			query += field.ResultStr + ", ";
 
 		}
 
@@ -389,8 +389,8 @@ bool USQLiteDatabase::CreateTable(const FString DatabaseName, const FString Tabl
 		query += ");";
 	}
 	else {
-		if (PK.Len() > 2) {
-			query += " " + PK + " ";
+		if (PK.ResultStr.Len() > 2) {
+			query += " " + PK.ResultStr + " ";
 		}
 		else {
 			query = query.Left(query.Len() - 2);
@@ -476,14 +476,14 @@ bool USQLiteDatabase::ExecSql(const FString DatabaseName, const FString Query) {
 
 //--------------------------------------------------------------------------------------------------------------
 
-bool USQLiteDatabase::CreateIndexes(const FString DatabaseName, const FString TableName, const TArray<FString> Indexes)
+bool USQLiteDatabase::CreateIndexes(const FString DatabaseName, const FString TableName, const TArray<FSQLiteIndex> Indexes)
 {
 	bool idxCrSts = true;
 
-	for (const FString& idx : Indexes)
+	for (const FSQLiteIndex& idx : Indexes)
 	{
-		if (idx.Len() > 2) {
-			FString query = idx.Replace(TEXT("$$$TABLE_NAME$$$"), *TableName);
+		if (idx.ResultStr.Len() > 2) {
+			FString query = idx.ResultStr.Replace(TEXT("$$$TABLE_NAME$$$"), *TableName);
 
 			//LOGSQLITE(Warning, *query);
 
@@ -502,11 +502,11 @@ bool USQLiteDatabase::CreateIndexes(const FString DatabaseName, const FString Ta
 
 //--------------------------------------------------------------------------------------------------------------
 
-bool USQLiteDatabase::CreateIndex(const FString DatabaseName, const FString TableName, const FString Index)
+bool USQLiteDatabase::CreateIndex(const FString DatabaseName, const FString TableName, const FSQLiteIndex Index)
 {
 	bool idxCrSts = true;
 
-	FString query = Index.Replace(TEXT("$$$TABLE_NAME$$$"), *TableName);
+	FString query = Index.ResultStr.Replace(TEXT("$$$TABLE_NAME$$$"), *TableName);
 
 	//LOGSQLITE(Warning, *query);
 

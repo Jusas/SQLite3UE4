@@ -399,6 +399,8 @@ bool USQLiteDatabase::CreateTable(const FString DatabaseName, const FString Tabl
 		query += ");";
 	}
 
+	//LOGSQLITE(Warning, *query);
+
 	return ExecSql(DatabaseName, query);
 
 }
@@ -411,6 +413,23 @@ bool USQLiteDatabase::DropTable(const FString DatabaseName, const FString TableN
 
 
 	FString query = "DROP TABLE " + TableName;
+
+	//LOGSQLITE(Warning, *query);
+
+	idxCrSts = ExecSql(DatabaseName, query);
+
+	return idxCrSts;
+
+}
+
+//--------------------------------------------------------------------------------------------------------------
+
+bool USQLiteDatabase::TruncateTable(const FString DatabaseName, const FString TableName)
+{
+	bool idxCrSts = true;
+
+
+	FString query = "TRUNCATE TABLE " + TableName;
 
 	//LOGSQLITE(Warning, *query);
 
@@ -476,7 +495,7 @@ bool USQLiteDatabase::CreateIndexes(const FString DatabaseName, const FString Ta
 		}
 
 	}
-	
+
 	return idxCrSts;
 
 }

@@ -169,9 +169,14 @@ public:
 	/** Drop Table*/
 	UFUNCTION(BlueprintCallable, Category = "SQLite|Query", meta = (DisplayName = "Drop Table"))
 		static bool DropTable(const FString DatabaseName, const FString TableName);
+
 	/** Truncate Table*/
 	UFUNCTION(BlueprintCallable, Category = "SQLite|Query", meta = (DisplayName = "Truncate Table"))
 		static bool TruncateTable(const FString DatabaseName, const FString TableName);
+
+	/** Is table exists?*/
+	UFUNCTION(BlueprintCallable, Category = "SQLite|Query", meta = (DisplayName = "Is table exists?"))
+		static bool IsTableExists(const FString DatabaseName, const FString TableName);
 
 private:
 	/** Checks database validity (if the file exists and/or if it can be opened). */

@@ -506,7 +506,6 @@ bool USQLiteDatabase::CreateIndex(const FString DatabaseName, const FString Tabl
 {
 	bool idxCrSts = true;
 
-
 	FString query = Index.Replace(TEXT("$$$TABLE_NAME$$$"), *TableName);
 
 	//LOGSQLITE(Warning, *query);
@@ -523,7 +522,6 @@ bool USQLiteDatabase::DropIndex(const FString DatabaseName, const FString IndexN
 {
 	bool idxCrSts = true;
 
-
 	FString query = "DROP INDEX " + IndexName;
 
 	//LOGSQLITE(Warning, *query);
@@ -531,6 +529,52 @@ bool USQLiteDatabase::DropIndex(const FString DatabaseName, const FString IndexN
 	idxCrSts = ExecSql(DatabaseName, query);
 
 	return idxCrSts;
+
+}
+
+//--------------------------------------------------------------------------------------------------------------
+
+bool USQLiteDatabase::IsTableExists(const FString DatabaseName, const FString TableName)
+{
+
+	sqlite3* db;
+	int32 sqlReturnCode = 0;
+	int32* sqlReturnCode1 = &sqlReturnCode;
+	sqlite3_stmt* preparedStatement;
+
+	FString Query = "SELECT * FROM sqlite_master WHERE type='table' AND name='" + TableName + "';";
+
+	PrepareStatement(&DatabaseName, &Query, &db, &sqlReturnCode1, &preparedStatement);
+	sqlReturnCode = *sqlReturnCode1;
+
+	if (sqlReturnCode != SQLITE_OK)
+	{
+		const char* errorMessage = sqlite3_errmsg(db);
+		FString error = "SQL error: " + FString(UTF8_TO_TCHAR(errorMessage));
+		LOGSQLITE(Error, *error);
+		LOGSQLITE(Error, *FString::Printf(TEXT("The attempted query was: %s"), *Query));
+		sqlite3_finalize(preparedStatement);
+		sqlite3_close(db);
+	}
+
+	bool tableExists = false;
+
+	for (sqlReturnCode = sqlite3_step(preparedStatement);
+		sqlReturnCode != SQLITE_DONE && sqlReturnCode == SQLITE_ROW;
+		sqlReturnCode = sqlite3_step(preparedStatement))
+	{
+		tableExists = true;
+		break;
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	// Release the statement and close the connection
+	//////////////////////////////////////////////////////////////////////////
+
+	sqlite3_finalize(preparedStatement);
+	sqlite3_close(db);
+
+	return tableExists;
 
 }
 

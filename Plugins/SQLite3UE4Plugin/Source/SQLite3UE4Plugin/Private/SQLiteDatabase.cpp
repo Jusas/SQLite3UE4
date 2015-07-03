@@ -356,11 +356,14 @@ void USQLiteDatabase::PrepareStatement(const FString* DatabaseName, const FStrin
 
 //--------------------------------------------------------------------------------------------------------------
 
-bool USQLiteDatabase::CreateTable(const FString DatabaseName, const FString TableName,
-	const TArray<FSQLiteTableField> Fields, const FSQLitePrimaryKey PK, FString &TableNameOutput)
+FSQLiteTable USQLiteDatabase::CreateTable(const FString DatabaseName, const FString TableName,
+	const TArray<FSQLiteTableField> Fields, const FSQLitePrimaryKey PK)
 {
-
-	TableNameOutput = TableName;
+	FSQLiteTable t;
+	t.DatabaseName = DatabaseName;
+	t.TableName = TableName;
+	t.Fields = Fields;
+	t.PK = PK;
 
 	FString query = "";
 	query += "CREATE TABLE IF NOT EXISTS ";
@@ -401,7 +404,9 @@ bool USQLiteDatabase::CreateTable(const FString DatabaseName, const FString Tabl
 
 	//LOGSQLITE(Warning, *query);
 
-	return ExecSql(DatabaseName, query);
+	t.Created = ExecSql(DatabaseName, query);
+
+	return t;
 
 }
 
@@ -429,7 +434,24 @@ bool USQLiteDatabase::TruncateTable(const FString DatabaseName, const FString Ta
 	bool idxCrSts = true;
 
 
-	FString query = "TRUNCATE TABLE " + TableName;
+	FString query = "DELETE FROM " + TableName + ";";
+
+	//LOGSQLITE(Warning, *query);
+
+	idxCrSts = ExecSql(DatabaseName, query);
+
+	return idxCrSts;
+
+}
+
+//--------------------------------------------------------------------------------------------------------------
+
+bool USQLiteDatabase::Vacuum(const FString DatabaseName)
+{
+	bool idxCrSts = true;
+
+
+	FString query = "VACUUM; ";
 
 	//LOGSQLITE(Warning, *query);
 
@@ -576,6 +598,35 @@ bool USQLiteDatabase::IsTableExists(const FString DatabaseName, const FString Ta
 
 	return tableExists;
 
+}
+
+void USQLiteDatabase::InsertRowsIntoTable(const FString DatabaseName, const FString TableName, TArray<FSQLiteTableRowSimulator> rowsOfFields){
+	for (FSQLiteTableRowSimulator row : rowsOfFields) {
+		FString query = "INSERT INTO " + TableName + " (";
+		for (FSQLiteTableField field : row.rowsOfFields) {
+			query += field.FieldName + ", ";
+		}
+
+		query = query.Left(query.Len() - 2);
+
+		query = query + ") VALUES (";
+		for (FSQLiteTableField field : row.rowsOfFields) {
+			if (field.FieldType.Equals(TEXT("TEXT"))) {
+				query = query + "'" + field.FieldValue + "', ";
+			}
+			else {
+				query = query + field.FieldValue + ", ";
+			}
+		}
+
+		query = query.Left(query.Len() - 2);
+		query = query + ");";
+
+		//LOGSQLITE(Warning, *query);
+
+		ExecSql(DatabaseName, query);
+
+	}
 }
 
 //--------------------------------------------------------------------------------------------------------------

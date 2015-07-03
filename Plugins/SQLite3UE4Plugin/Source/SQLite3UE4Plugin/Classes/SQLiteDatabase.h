@@ -1,47 +1,8 @@
 #pragma once
 #include "sqlite3.h"
 #include "SQLiteBlueprintNodes.h"
+#include "SQLiteDatabaseStructs.h"
 #include "SQLiteDatabase.generated.h"
-
-USTRUCT(BlueprintType)
-struct SQLITE3UE4PLUGIN_API FSQLiteIndex
-{
-	GENERATED_USTRUCT_BODY()
-
-		/** String with piece if SQL script*/
-		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SQLite Index")
-		FString ResultStr = "";
-
-		/** Field name*/
-		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SQLite Index")
-		FString IndexName = "";
-
-};
-
-USTRUCT(BlueprintType)
-struct SQLITE3UE4PLUGIN_API FSQLitePrimaryKey
-{
-	GENERATED_USTRUCT_BODY()
-
-		/** String with piece if SQL script*/
-		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SQLite Primary Key")
-		FString ResultStr = "";
-};
-
-USTRUCT(BlueprintType)
-struct SQLITE3UE4PLUGIN_API FSQLiteTableField
-{
-	GENERATED_USTRUCT_BODY()
-
-		/** String with piece if SQL script*/
-		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SQLite Table Field")
-		FString ResultStr = "";
-
-	/** Field name*/
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SQLite Table Field")
-		FString FieldName = "";
-
-};
 
 USTRUCT(BlueprintType)
 struct SQLITE3UE4PLUGIN_API FSQLiteDatabaseReference
@@ -191,8 +152,8 @@ public:
 
 	/** Create table in the database. */
 	UFUNCTION(BlueprintCallable, Category = "SQLite|Query", meta = (DisplayName = "Create Table"))
-		static bool CreateTable(const FString DatabaseName, const FString TableName,
-		const TArray<FSQLiteTableField> Fields, const FSQLitePrimaryKey PK, FString &TableNameOutput);
+		static FSQLiteTable CreateTable(const FString DatabaseName, const FString TableName,
+		const TArray<FSQLiteTableField> Fields, const FSQLitePrimaryKey PK);
 
 	/** Create indexes for table */
 	UFUNCTION(BlueprintCallable, Category = "SQLite|Query", meta = (DisplayName = "Create Indexes"))
@@ -217,6 +178,14 @@ public:
 	/** Is table exists?*/
 	UFUNCTION(BlueprintCallable, Category = "SQLite|Query", meta = (DisplayName = "Is table exists?"))
 		static bool IsTableExists(const FString DatabaseName, const FString TableName);
+
+	/** Insert rows into table */
+	UFUNCTION(BlueprintCallable, Category = "SQLite|Query", meta = (DisplayName = "Insert Rows Into Table"))
+		static void InsertRowsIntoTable(const FString DatabaseName, const FString TableName, TArray<FSQLiteTableRowSimulator> rowsOfFields);
+
+	/** Compact database*/
+	UFUNCTION(BlueprintCallable, Category = "SQLite|Query", meta = (DisplayName = "Compact database"))
+		static bool Vacuum(const FString DatabaseName);
 
 private:
 	/** Checks database validity (if the file exists and/or if it can be opened). */

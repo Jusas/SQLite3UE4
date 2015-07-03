@@ -103,6 +103,7 @@ FSQLiteTableField USQLiteBlueprintFunctionLibrary::SQLiteINTEGER(const FString F
 {
 
 	FSQLiteTableField f;
+	f.FieldType = "INTEGER";
 
 	f.FieldName = FieldName;
 
@@ -127,6 +128,7 @@ FSQLiteTableField USQLiteBlueprintFunctionLibrary::SQLiteTEXT(const FString Fiel
 	const bool Unique)
 {
 	FSQLiteTableField f;
+	f.FieldType = "TEXT";
 
 	f.FieldName = FieldName;
 
@@ -144,6 +146,7 @@ FSQLiteTableField USQLiteBlueprintFunctionLibrary::SQLiteREAL(const FString Fiel
 	const bool Unique)
 {
 	FSQLiteTableField f;
+	f.FieldType = "REAL";
 
 	f.FieldName = FieldName;
 
@@ -161,6 +164,7 @@ FSQLiteTableField USQLiteBlueprintFunctionLibrary::SQLiteNUMERIC(const FString F
 	const bool Unique)
 {
 	FSQLiteTableField f;
+	f.FieldType = "NUMERIC";
 
 	f.FieldName = FieldName;
 
@@ -200,7 +204,7 @@ FSQLitePrimaryKey USQLiteBlueprintFunctionLibrary::SQLitePrimaryKey(const TArray
 	return result;
 }
 
-FSQLiteIndex USQLiteBlueprintFunctionLibrary::SQLiteIndex(const TArray<FSQLiteTableField> Fields, FString idxName, bool Unique) {
+FSQLiteIndex USQLiteBlueprintFunctionLibrary::SQLiteIndexFunction(const TArray<FSQLiteTableField> Fields, FString idxName, bool Unique) {
 	
 	FSQLiteIndex i;
 	i.IndexName = idxName;

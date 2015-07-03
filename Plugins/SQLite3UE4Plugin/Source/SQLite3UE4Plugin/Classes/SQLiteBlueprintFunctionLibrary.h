@@ -80,7 +80,7 @@ public:
 		static FSQLitePrimaryKey SQLitePrimaryKey(const TArray<FSQLiteTableField> Fields);
 
 	UFUNCTION(BlueprintPure, meta = (DisplayName = "Index (SQLite)"), Category = "SQLite|Query|DataTypes")
-		static FSQLiteIndex SQLiteIndex(const TArray<FSQLiteTableField> Fields, FString idxName, bool Unique);
+		static FSQLiteIndex SQLiteIndexFunction(const TArray<FSQLiteTableField> Fields, FString idxName, bool Unique);
 
 
 

@@ -11,3 +11,7 @@ Saved/
 SQLite.sln
 temppi/
 Build/
+/SQLStaticLib/Release
+/SQLStaticLib/SQLStaticLib/Release
+/SQLStaticLib/SQLStaticLib/x64
+/SQLStaticLib/SQLStaticLib/Debug

@@ -1,3 +1,6 @@
+### Note: deprecated! ###
+Unfortunately I don't have the time to maintain this repository any longer, no more updates are to be expected. Sorry!
+
 # SQLite3UE4
 SQLite3 Database Plugin for Unreal Engine 4
 

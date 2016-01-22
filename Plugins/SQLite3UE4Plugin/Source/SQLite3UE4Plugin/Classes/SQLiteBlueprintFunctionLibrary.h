@@ -8,34 +8,21 @@
 *	Blueprint function library, convenience stuff.
 */
 UCLASS()
-class USQLiteBlueprintFunctionLibrary : public UBlueprintFunctionLibrary
+class SQLITE3UE4PLUGIN_API USQLiteBlueprintFunctionLibrary : public UBlueprintFunctionLibrary
 {
-	GENERATED_UCLASS_BODY()
+	GENERATED_BODY()
 
 public:
 
-	UFUNCTION(BlueprintPure, meta = (DefaultToSelf = "WorldContextObject", HidePin = "WorldContextObject"), Category = "SQLite")
-		static UObject* NewObjectFromBlueprint(UObject* WorldContextObject, TSubclassOf<UObject> UC);
-
-	/**
-	* Simple casts for blueprint use.
-	*/
 
 	UFUNCTION(BlueprintCallable, Category = "SQLite|Value Conversion")
 		static int32 CastToInt(FString SQLiteResultValue);
-
-	//UFUNCTION(BlueprintCallable, Category = "SQLite|Value Conversion")
-	//static int64 CastToInt64(FString SQLiteResultValue);
 
 	UFUNCTION(BlueprintCallable, Category = "SQLite|Value Conversion")
 		static bool CastToBoolean(FString SQLiteResultValue);
 
 	UFUNCTION(BlueprintCallable, Category = "SQLite|Value Conversion")
 		static float CastToFloat(FString SQLiteResultValue);
-
-	//UFUNCTION(BlueprintCallable, Category = "SQLite|Value Conversion")
-	//static double CastToDouble(FString SQLiteResultValue);
-
 	/**
 	* Blueprint nodes for building queries.
 	*/

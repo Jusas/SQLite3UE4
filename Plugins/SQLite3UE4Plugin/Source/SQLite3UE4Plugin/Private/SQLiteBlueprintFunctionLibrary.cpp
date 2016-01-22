@@ -2,41 +2,16 @@
 #include "Engine.h"
 #include "CString.h"
 
-static USQLiteDatabase* DatabasePtr = NewObject<USQLiteDatabase>();
+#include "../Classes/SQLiteBlueprintFunctionLibrary.h"
 
-//--------------------------------------------------------------------------------------------------------------
 
-USQLiteBlueprintFunctionLibrary::USQLiteBlueprintFunctionLibrary(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer)
-{
 
-}
-
-//--------------------------------------------------------------------------------------------------------------
-
-UObject* USQLiteBlueprintFunctionLibrary::NewObjectFromBlueprint(UObject* WorldContextObject, TSubclassOf<UObject> UC)
-{
-	UWorld* World = GEngine->GetWorldFromContextObject(WorldContextObject);
-	UObject* tempObject = StaticConstructObject(UC);
-
-	return tempObject;
-}
-
-//--------------------------------------------------------------------------------------------------------------
 
 int32 USQLiteBlueprintFunctionLibrary::CastToInt(FString SQLiteResultValue)
 {
 	return FCString::Atoi(*SQLiteResultValue);
 }
 
-//--------------------------------------------------------------------------------------------------------------
-
-//int64 USQLiteBlueprintFunctionLibrary::CastToInt64(FString SQLiteResultValue)
-//{
-//	return FCString::Atoi64(*SQLiteResultValue);
-//}
-
-//--------------------------------------------------------------------------------------------------------------
 
 bool USQLiteBlueprintFunctionLibrary::CastToBoolean(FString SQLiteResultValue)
 {
@@ -49,13 +24,6 @@ float USQLiteBlueprintFunctionLibrary::CastToFloat(FString SQLiteResultValue)
 {
 	return FCString::Atof(*SQLiteResultValue);
 }
-
-//--------------------------------------------------------------------------------------------------------------
-
-//double USQLiteBlueprintFunctionLibrary::CastToDouble(FString SQLiteResultValue)
-//{
-//	return FCString::Atod(*SQLiteResultValue);
-//}
 
 //--------------------------------------------------------------------------------------------------------------
 

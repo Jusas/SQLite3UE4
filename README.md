@@ -12,7 +12,7 @@ Both C++ and blueprints are supported. For convenience, queries can be construct
 
 ## Currently supported platforms
 
-The current version was built with Unreal Engine version 4.8.
+The current version was built with Unreal Engine version 4.10 and 4.11.
 
 Win32 and Win64 platforms are currently supported and tested. Mac and Linux should work as well but requires compiling the sqlite3 binaries and editing the build script so that the compiler can find the correct libraries to link to. Contributions on this would be much appreciated.
 

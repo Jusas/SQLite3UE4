@@ -5,7 +5,18 @@ public class SQLite3UE4Plugin : ModuleRules
 {
     public SQLite3UE4Plugin(TargetInfo Target)
     {
-        string ModulePath = Path.GetDirectoryName( RulesCompiler.GetModuleFilename( this.GetType().Name ) );
+		//File.WriteAllText("c:/temp/qqq.txt", this.GetType().Name);
+		//string ModulePath = Path.GetDirectoryName( RulesAssembly.GetModuleFilename( this.GetType().Name ) );
+		
+		RulesAssembly r;
+		FileReference CheckProjectFile;
+		UProjectInfo.TryGetProjectForTarget("MyGame", out CheckProjectFile);
+		
+		r = RulesCompiler.CreateProjectRulesAssembly(CheckProjectFile);
+		FileReference f = r.GetModuleFileName( this.GetType().Name );
+		//File.WriteAllText("c:/temp/qqq2.txt", f.CanonicalName );
+		
+        string ModulePath = Path.GetDirectoryName( f.CanonicalName );
         string PlatformString = (Target.Platform == UnrealTargetPlatform.Win64) ? "x64" : "x86";
         string ThirdPartyPath = Path.GetFullPath( Path.Combine( ModulePath, "../../ThirdParty/" ) );
         string LibrariesPath = Path.Combine(ThirdPartyPath, "SQLite3", "Lib");

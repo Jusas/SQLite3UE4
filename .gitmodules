@@ -1,0 +1,3 @@
+[submodule "ThirdPartyTools/sqlitebrowser"]
+	path = ThirdPartyTools/sqlitebrowser
+	url = https://github.com/KhArtNJava/sqlitebrowser.git

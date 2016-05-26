@@ -187,6 +187,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "SQLite|Query", meta = (DisplayName = "Compact database"))
 		static bool Vacuum(const FString DatabaseName);
 
+	/** Execute SQL (can be used for insert statement)*/
+	UFUNCTION(BlueprintCallable, Category = "SQLite|Query", meta = (DisplayName = "Execute SQL"))
+		static bool ExecSql(const FString DatabaseName, const FString Query);
+
 private:
 	/** Checks database validity (if the file exists and/or if it can be opened). */
 	static bool IsValidDatabase(FString DatabaseFilename, bool TestByOpening);
@@ -202,7 +206,7 @@ private:
 	static void AssignResultsToObjectProperties(const SQLiteResultValue& ResultValue, UObject* ObjectToPopulate);
 	static void PrepareStatement(const FString* DatabaseName, const FString* Query, sqlite3** Db, int32** SqlReturnCode,
 		sqlite3_stmt** PreparedStatement);
-	static bool ExecSql(const FString DatabaseName, const FString Query);
+	
 
 private:
 	/** A list of the databases for convenience, easier to refer to them by name rather than a long filename. */

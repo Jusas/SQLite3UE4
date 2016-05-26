@@ -22,19 +22,19 @@ bool USQLiteDatabase::RegisterDatabase(FString Name, FString Filename, bool Rela
 	{
 		actualFilename = FPaths::GameDir() + Filename;
 	}
+		
+	if (!IsValidDatabase(actualFilename, true))
+	{
+		FString message = "Unable to add database '" + actualFilename + "', it is not valid (problems opening it)!";
+		LOGSQLITE(Error, *message);
+		return false;
+	}
 
 	if (IsDatabaseRegistered(Name))
 	{
 		FString message = "Database '" + actualFilename + "' is already registered, skipping.";
 		LOGSQLITE(Warning, *message);
 		return true;
-	}
-
-	if (!IsValidDatabase(actualFilename, true))
-	{
-		FString message = "Unable to add database '" + actualFilename + "', it is not valid (problems opening it)!";
-		LOGSQLITE(Error, *message);
-		return false;
 	}
 
 	Databases.Add(Name, actualFilename);

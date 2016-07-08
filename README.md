@@ -1,5 +1,14 @@
-### Note: deprecated! ###
-Unfortunately I don't have the time to maintain this repository any longer, no more updates are to be expected. Sorry!
+# Note: DEPRECATED! #
+This repository is no longer maintained but fear not, the work has been continued in other forks and repositories.
+
+You'll want to check these out:
+
+| Repo        | Description           |
+| :------------- |:-------------|
+| https://github.com/KhArtNJava/SQLite3UE4     | KhArtNJava fork |
+| https://github.com/cindustries/unreal-sqlite3      | CIndustries repo, combining this repo with KhArtNJava fork and providing full multiplatform support      |
+
+Also, don't miss this resource: https://github.com/cindustries/unreal-directory
 
 # SQLite3UE4
 SQLite3 Database Plugin for Unreal Engine 4

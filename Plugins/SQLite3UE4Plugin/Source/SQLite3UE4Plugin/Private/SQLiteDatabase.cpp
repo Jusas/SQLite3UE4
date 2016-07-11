@@ -20,7 +20,14 @@ bool USQLiteDatabase::RegisterDatabase(FString Name, FString Filename, bool Rela
 
 	if (RelativeToGameContentDirectory)
 	{
-		actualFilename = FPaths::GameDir() + Filename;
+		actualFilename = FPaths::GameContentDir() + Filename;
+	}
+		
+	if (!IsValidDatabase(actualFilename, true))
+	{
+		FString message = "Unable to add database '" + actualFilename + "', it is not valid (problems opening it)!";
+		LOGSQLITE(Error, *message);
+		return false;
 	}
 
 	if (IsDatabaseRegistered(Name))
@@ -28,13 +35,6 @@ bool USQLiteDatabase::RegisterDatabase(FString Name, FString Filename, bool Rela
 		FString message = "Database '" + actualFilename + "' is already registered, skipping.";
 		LOGSQLITE(Warning, *message);
 		return true;
-	}
-
-	if (!IsValidDatabase(actualFilename, true))
-	{
-		FString message = "Unable to add database '" + actualFilename + "', it is not valid (problems opening it)!";
-		LOGSQLITE(Error, *message);
-		return false;
 	}
 
 	Databases.Add(Name, actualFilename);
@@ -356,11 +356,14 @@ void USQLiteDatabase::PrepareStatement(const FString* DatabaseName, const FStrin
 
 //--------------------------------------------------------------------------------------------------------------
 
-bool USQLiteDatabase::CreateTable(const FString DatabaseName, const FString TableName,
-	const TArray<FString> Fields, const FString PK, FString &TableNameOutput)
+FSQLiteTable USQLiteDatabase::CreateTable(const FString DatabaseName, const FString TableName,
+	const TArray<FSQLiteTableField> Fields, const FSQLitePrimaryKey PK)
 {
-
-	TableNameOutput = TableName;
+	FSQLiteTable t;
+	t.DatabaseName = DatabaseName;
+	t.TableName = TableName;
+	t.Fields = Fields;
+	t.PK = PK;
 
 	FString query = "";
 	query += "CREATE TABLE IF NOT EXISTS ";
@@ -369,15 +372,15 @@ bool USQLiteDatabase::CreateTable(const FString DatabaseName, const FString Tabl
 
 	bool singlePrimaryKeyExists = false;
 
-	for (const FString& field : Fields)
+	for (const FSQLiteTableField& field : Fields)
 	{
-		if (field.Len() > 2) {
+		if (field.ResultStr.Len() > 2) {
 
-			if (field.Contains("PRIMARY KEY")) {
+			if (field.ResultStr.Contains("PRIMARY KEY")) {
 				singlePrimaryKeyExists = true;
 			}
 
-			query += field + ", ";
+			query += field.ResultStr + ", ";
 
 		}
 
@@ -389,8 +392,8 @@ bool USQLiteDatabase::CreateTable(const FString DatabaseName, const FString Tabl
 		query += ");";
 	}
 	else {
-		if (PK.Len() > 2) {
-			query += " " + PK + " ";
+		if (PK.ResultStr.Len() > 2) {
+			query += " " + PK.ResultStr + " ";
 		}
 		else {
 			query = query.Left(query.Len() - 2);
@@ -399,7 +402,11 @@ bool USQLiteDatabase::CreateTable(const FString DatabaseName, const FString Tabl
 		query += ");";
 	}
 
-	return ExecSql(DatabaseName, query);
+	//LOGSQLITE(Warning, *query);
+
+	t.Created = ExecSql(DatabaseName, query);
+
+	return t;
 
 }
 
@@ -411,6 +418,40 @@ bool USQLiteDatabase::DropTable(const FString DatabaseName, const FString TableN
 
 
 	FString query = "DROP TABLE " + TableName;
+
+	//LOGSQLITE(Warning, *query);
+
+	idxCrSts = ExecSql(DatabaseName, query);
+
+	return idxCrSts;
+
+}
+
+//--------------------------------------------------------------------------------------------------------------
+
+bool USQLiteDatabase::TruncateTable(const FString DatabaseName, const FString TableName)
+{
+	bool idxCrSts = true;
+
+
+	FString query = "DELETE FROM " + TableName + ";";
+
+	//LOGSQLITE(Warning, *query);
+
+	idxCrSts = ExecSql(DatabaseName, query);
+
+	return idxCrSts;
+
+}
+
+//--------------------------------------------------------------------------------------------------------------
+
+bool USQLiteDatabase::Vacuum(const FString DatabaseName)
+{
+	bool idxCrSts = true;
+
+
+	FString query = "VACUUM; ";
 
 	//LOGSQLITE(Warning, *query);
 
@@ -457,14 +498,14 @@ bool USQLiteDatabase::ExecSql(const FString DatabaseName, const FString Query) {
 
 //--------------------------------------------------------------------------------------------------------------
 
-bool USQLiteDatabase::CreateIndexes(const FString DatabaseName, const FString TableName, const TArray<FString> Indexes)
+bool USQLiteDatabase::CreateIndexes(const FString DatabaseName, const FString TableName, const TArray<FSQLiteIndex> Indexes)
 {
 	bool idxCrSts = true;
 
-	for (const FString& idx : Indexes)
+	for (const FSQLiteIndex& idx : Indexes)
 	{
-		if (idx.Len() > 2) {
-			FString query = idx.Replace(TEXT("$$$TABLE_NAME$$$"), *TableName);
+		if (idx.ResultStr.Len() > 2) {
+			FString query = idx.ResultStr.Replace(TEXT("$$$TABLE_NAME$$$"), *TableName);
 
 			//LOGSQLITE(Warning, *query);
 
@@ -476,19 +517,18 @@ bool USQLiteDatabase::CreateIndexes(const FString DatabaseName, const FString Ta
 		}
 
 	}
-	
+
 	return idxCrSts;
 
 }
 
 //--------------------------------------------------------------------------------------------------------------
 
-bool USQLiteDatabase::CreateIndex(const FString DatabaseName, const FString TableName, const FString Index)
+bool USQLiteDatabase::CreateIndex(const FString DatabaseName, const FString TableName, const FSQLiteIndex Index)
 {
 	bool idxCrSts = true;
 
-
-	FString query = Index.Replace(TEXT("$$$TABLE_NAME$$$"), *TableName);
+	FString query = Index.ResultStr.Replace(TEXT("$$$TABLE_NAME$$$"), *TableName);
 
 	//LOGSQLITE(Warning, *query);
 
@@ -504,7 +544,6 @@ bool USQLiteDatabase::DropIndex(const FString DatabaseName, const FString IndexN
 {
 	bool idxCrSts = true;
 
-
 	FString query = "DROP INDEX " + IndexName;
 
 	//LOGSQLITE(Warning, *query);
@@ -513,6 +552,81 @@ bool USQLiteDatabase::DropIndex(const FString DatabaseName, const FString IndexN
 
 	return idxCrSts;
 
+}
+
+//--------------------------------------------------------------------------------------------------------------
+
+bool USQLiteDatabase::IsTableExists(const FString DatabaseName, const FString TableName)
+{
+
+	sqlite3* db;
+	int32 sqlReturnCode = 0;
+	int32* sqlReturnCode1 = &sqlReturnCode;
+	sqlite3_stmt* preparedStatement;
+
+	FString Query = "SELECT * FROM sqlite_master WHERE type='table' AND name='" + TableName + "';";
+
+	PrepareStatement(&DatabaseName, &Query, &db, &sqlReturnCode1, &preparedStatement);
+	sqlReturnCode = *sqlReturnCode1;
+
+	if (sqlReturnCode != SQLITE_OK)
+	{
+		const char* errorMessage = sqlite3_errmsg(db);
+		FString error = "SQL error: " + FString(UTF8_TO_TCHAR(errorMessage));
+		LOGSQLITE(Error, *error);
+		LOGSQLITE(Error, *FString::Printf(TEXT("The attempted query was: %s"), *Query));
+		sqlite3_finalize(preparedStatement);
+		sqlite3_close(db);
+	}
+
+	bool tableExists = false;
+
+	for (sqlReturnCode = sqlite3_step(preparedStatement);
+		sqlReturnCode != SQLITE_DONE && sqlReturnCode == SQLITE_ROW;
+		sqlReturnCode = sqlite3_step(preparedStatement))
+	{
+		tableExists = true;
+		break;
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	// Release the statement and close the connection
+	//////////////////////////////////////////////////////////////////////////
+
+	sqlite3_finalize(preparedStatement);
+	sqlite3_close(db);
+
+	return tableExists;
+
+}
+
+void USQLiteDatabase::InsertRowsIntoTable(const FString DatabaseName, const FString TableName, TArray<FSQLiteTableRowSimulator> rowsOfFields){
+	for (FSQLiteTableRowSimulator row : rowsOfFields) {
+		FString query = "INSERT INTO " + TableName + " (";
+		for (FSQLiteTableField field : row.rowsOfFields) {
+			query += field.FieldName + ", ";
+		}
+
+		query = query.Left(query.Len() - 2);
+
+		query = query + ") VALUES (";
+		for (FSQLiteTableField field : row.rowsOfFields) {
+			if (field.FieldType.Equals(TEXT("TEXT"))) {
+				query = query + "'" + field.FieldValue + "', ";
+			}
+			else {
+				query = query + field.FieldValue + ", ";
+			}
+		}
+
+		query = query.Left(query.Len() - 2);
+		query = query + ");";
+
+		//LOGSQLITE(Warning, *query);
+
+		ExecSql(DatabaseName, query);
+
+	}
 }
 
 //--------------------------------------------------------------------------------------------------------------

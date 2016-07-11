@@ -2,41 +2,16 @@
 #include "Engine.h"
 #include "CString.h"
 
-static USQLiteDatabase* DatabasePtr = NewObject<USQLiteDatabase>();
+#include "../Classes/SQLiteBlueprintFunctionLibrary.h"
 
-//--------------------------------------------------------------------------------------------------------------
 
-USQLiteBlueprintFunctionLibrary::USQLiteBlueprintFunctionLibrary(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer)
-{
 
-}
-
-//--------------------------------------------------------------------------------------------------------------
-
-UObject* USQLiteBlueprintFunctionLibrary::NewObjectFromBlueprint(UObject* WorldContextObject, TSubclassOf<UObject> UC)
-{
-	UWorld* World = GEngine->GetWorldFromContextObject(WorldContextObject);
-	UObject* tempObject = StaticConstructObject(UC);
-
-	return tempObject;
-}
-
-//--------------------------------------------------------------------------------------------------------------
 
 int32 USQLiteBlueprintFunctionLibrary::CastToInt(FString SQLiteResultValue)
 {
 	return FCString::Atoi(*SQLiteResultValue);
 }
 
-//--------------------------------------------------------------------------------------------------------------
-
-//int64 USQLiteBlueprintFunctionLibrary::CastToInt64(FString SQLiteResultValue)
-//{
-//	return FCString::Atoi64(*SQLiteResultValue);
-//}
-
-//--------------------------------------------------------------------------------------------------------------
 
 bool USQLiteBlueprintFunctionLibrary::CastToBoolean(FString SQLiteResultValue)
 {
@@ -49,13 +24,6 @@ float USQLiteBlueprintFunctionLibrary::CastToFloat(FString SQLiteResultValue)
 {
 	return FCString::Atof(*SQLiteResultValue);
 }
-
-//--------------------------------------------------------------------------------------------------------------
-
-//double USQLiteBlueprintFunctionLibrary::CastToDouble(FString SQLiteResultValue)
-//{
-//	return FCString::Atod(*SQLiteResultValue);
-//}
 
 //--------------------------------------------------------------------------------------------------------------
 
@@ -98,11 +66,14 @@ FSQLiteQueryFinalizedQuery USQLiteBlueprintFunctionLibrary::QueryFinal(const FSQ
 	return FSQLiteQueryFinalizedQuery(QueryEndNode.Query);
 }
 
-FString USQLiteBlueprintFunctionLibrary::SQLiteINTEGER(const FString FieldName, const bool PK, const bool AI, 
-	FString &ForPrimaryKey, const bool Unique, FString &FieldNameOutput)
+FSQLiteTableField USQLiteBlueprintFunctionLibrary::SQLiteINTEGER(const FString FieldName, const bool PK, const bool AI,
+	const bool Unique)
 {
 
-	FieldNameOutput = FieldName;
+	FSQLiteTableField f;
+	f.FieldType = "INTEGER";
+
+	f.FieldName = FieldName;
 
 	FString outStr = FieldName + " INTEGER ";
 	if (PK && AI) {
@@ -111,78 +82,80 @@ FString USQLiteBlueprintFunctionLibrary::SQLiteINTEGER(const FString FieldName, 
 	else if (AI) {
 		outStr += " PRIMARY KEY AUTOINCREMENT ";
 	}
-	else if (PK) {
-		ForPrimaryKey = FieldName;
-	}
 
 	if (Unique) {
 		outStr += " UNIQUE ";
 	}
 
-	return outStr;
+	f.ResultStr = outStr;
+
+	return f;
 }
 
-FString USQLiteBlueprintFunctionLibrary::SQLiteTEXT(const FString FieldName, const bool PK,
-	FString &ForPrimaryKey, const bool Unique, FString &FieldNameOutput)
+FSQLiteTableField USQLiteBlueprintFunctionLibrary::SQLiteTEXT(const FString FieldName, const bool PK,
+	const bool Unique)
 {
-	FieldNameOutput = FieldName;
+	FSQLiteTableField f;
+	f.FieldType = "TEXT";
 
-	if (PK) {
-		ForPrimaryKey = FieldName;
-	}
+	f.FieldName = FieldName;
+
 	FString outStr = FieldName + " TEXT ";
 	if (Unique) {
 		outStr += " UNIQUE ";
 	}
 
-	return outStr;
+	f.ResultStr = outStr;
+
+	return f;
 }
 
-FString USQLiteBlueprintFunctionLibrary::SQLiteREAL(const FString FieldName, const bool PK,
-	FString &ForPrimaryKey, const bool Unique, FString &FieldNameOutput)
+FSQLiteTableField USQLiteBlueprintFunctionLibrary::SQLiteREAL(const FString FieldName, const bool PK,
+	const bool Unique)
 {
+	FSQLiteTableField f;
+	f.FieldType = "REAL";
 
-	FieldNameOutput = FieldName;
-
-	if (PK) {
-		ForPrimaryKey = FieldName;
-	}
+	f.FieldName = FieldName;
 
 	FString outStr = FieldName + " REAL ";
 	if (Unique) {
 		outStr += " UNIQUE ";
 	}
+	f.ResultStr = outStr;
 
-	return outStr;
+	return f;
 
 }
 
-FString USQLiteBlueprintFunctionLibrary::SQLiteNUMERIC(const FString FieldName, const bool PK,
-	FString &ForPrimaryKey, const bool Unique, FString &FieldNameOutput)
+FSQLiteTableField USQLiteBlueprintFunctionLibrary::SQLiteNUMERIC(const FString FieldName, const bool PK,
+	const bool Unique)
 {
+	FSQLiteTableField f;
+	f.FieldType = "NUMERIC";
 
-	FieldNameOutput = FieldName;
-
-	if (PK) {
-		ForPrimaryKey = FieldName;
-	}
+	f.FieldName = FieldName;
 
 	FString outStr = FieldName + " NUMERIC ";
 	if (Unique) {
 		outStr += " UNIQUE ";
 	}
 
-	return outStr;
+	f.ResultStr = outStr;
+
+	return f;
 
 }
 
-FString USQLiteBlueprintFunctionLibrary::SQLitePrimaryKey(const TArray<FString> Fields)
+FSQLitePrimaryKey USQLiteBlueprintFunctionLibrary::SQLitePrimaryKey(const TArray<FSQLiteTableField> Fields)
 {
-	
+	FSQLitePrimaryKey result;
+	result.ResultStr = "";
+
 	FString i = "";
-	for (const FString& field : Fields) {
-		if (field.Len()>1) {
-			i += field + ", ";
+	for (const FSQLiteTableField& field : Fields) {
+		if (field.FieldName.Len() > 1) {
+			i += field.FieldName + ", ";
 		}
 	}
 
@@ -195,26 +168,32 @@ FString USQLiteBlueprintFunctionLibrary::SQLitePrimaryKey(const TArray<FString> 
 		o += ")";
 	}
 
-	
-	return o;
+	result.ResultStr = o;
+	return result;
 }
 
-FString USQLiteBlueprintFunctionLibrary::SQLiteIndex(const TArray<FString> Fields, FString idxName, bool Unique) {
+FSQLiteIndex USQLiteBlueprintFunctionLibrary::SQLiteIndexFunction(const TArray<FSQLiteTableField> Fields, FString idxName, bool Unique) {
+	
+	FSQLiteIndex i;
+	i.IndexName = idxName;
+
 	FString o = "CREATE ";
 
 	if (Unique) {
 		o += "UNIQUE ";
 	}
 
-	o += "INDEX " + idxName+" ON $$$TABLE_NAME$$$ (";
+	o += "INDEX " + idxName + " ON $$$TABLE_NAME$$$ (";
 
-	for (const FString fld : Fields) {
-		o += fld + ", ";
+	for (const FSQLiteTableField fld : Fields) {
+		o += fld.FieldName + ", ";
 	}
 
 	o = o.Left(o.Len() - 2);
 	o += ");";
 
-	return o;
-	
+	i.ResultStr = o;
+
+	return i;
+
 }

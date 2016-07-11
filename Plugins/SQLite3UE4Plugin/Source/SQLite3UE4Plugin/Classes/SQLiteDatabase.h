@@ -1,5 +1,7 @@
 #pragma once
+#include "sqlite3.h"
 #include "SQLiteBlueprintNodes.h"
+#include "SQLiteDatabaseStructs.h"
 #include "SQLiteDatabase.generated.h"
 
 USTRUCT(BlueprintType)
@@ -7,27 +9,27 @@ struct SQLITE3UE4PLUGIN_API FSQLiteDatabaseReference
 {
 	GENERATED_USTRUCT_BODY()
 
-	/** The database name (not the filename) */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SQLite Database Reference")
-	FString DatabaseName;
+		/** The database name (not the filename) */
+		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SQLite Database Reference")
+		FString DatabaseName;
 
 	/** The database tables we want to get data from */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SQLite Database Reference")
-	TArray<FString> Tables;
+		TArray<FString> Tables;
 };
 
 USTRUCT(BlueprintType)
 struct SQLITE3UE4PLUGIN_API FSQLiteKeyValuePair
 {
 	GENERATED_USTRUCT_BODY()
-	
-	/** The database table field name */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SQLite Key Value Pair")
-	FString Key;
+
+		/** The database table field name */
+		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SQLite Key Value Pair")
+		FString Key;
 
 	/** The value of the field */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SQLite Key Value Pair")
-	FString Value;
+		FString Value;
 };
 
 USTRUCT(BlueprintType)
@@ -35,9 +37,9 @@ struct SQLITE3UE4PLUGIN_API FSQLiteQueryResultRow
 {
 	GENERATED_USTRUCT_BODY()
 
-	/** A list of field name, field value pairs */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SQLite Query Result")
-	TArray<FSQLiteKeyValuePair> Fields;
+		/** A list of field name, field value pairs */
+		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SQLite Query Result")
+		TArray<FSQLiteKeyValuePair> Fields;
 };
 
 USTRUCT(BlueprintType)
@@ -45,17 +47,17 @@ struct SQLITE3UE4PLUGIN_API FSQLiteQueryResult
 {
 	GENERATED_USTRUCT_BODY()
 
-	/** The resulting rows from the query */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SQLite Query Result")
-	TArray<FSQLiteQueryResultRow> ResultRows;
+		/** The resulting rows from the query */
+		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SQLite Query Result")
+		TArray<FSQLiteQueryResultRow> ResultRows;
 
 	/** Was the query successful or not */
 	UPROPERTY(BlueprintReadOnly, Category = "SQLite Query Result")
-	bool Success;
+		bool Success;
 
 	/** If the query was unsuccessful a human readable error message will be populated here */
 	UPROPERTY(BlueprintReadOnly, Category = "SQLite Query Result")
-	FString ErrorMessage;
+		FString ErrorMessage;
 
 };
 
@@ -121,73 +123,93 @@ class SQLITE3UE4PLUGIN_API USQLiteDatabase : public UObject
 {
 	GENERATED_UCLASS_BODY()
 
-	public:
+public:
 
-		/** Add a database to the list of databases. It will be checked that it's valid (will try to open it) */
-		UFUNCTION(BlueprintCallable, Category = "SQLite")
+	/** Add a database to the list of databases. It will be checked that it's valid (will try to open it) */
+	UFUNCTION(BlueprintCallable, Category = "SQLite")
 		static bool RegisterDatabase(FString Name, FString Filename, bool RelativeToGameContentDirectory);
 
-		/** Checks if the database is registered, ie. that it can be found in Databases. */
-		UFUNCTION(BlueprintCallable, Category = "SQLite")
+	/** Checks if the database is registered, ie. that it can be found in Databases. */
+	UFUNCTION(BlueprintCallable, Category = "SQLite")
 		static bool IsDatabaseRegistered(FString DatabaseName);
 
-		/** Get data from the database using a select statement straight into an UObject, ie. populates its properties. */
-		UFUNCTION(BlueprintCallable, Category = "SQLite", meta = (DisplayName = "Get Data Into Object (manual query)"))
+	/** Get data from the database using a select statement straight into an UObject, ie. populates its properties. */
+	UFUNCTION(BlueprintCallable, Category = "SQLite", meta = (DisplayName = "Get Data Into Object (manual query)"))
 		static bool GetDataIntoObject(const FString& DatabaseName, const FString& Query, UObject* ObjectToPopulate);
 
-		/** Blueprint: Gets data from the database using a select statement straight into an UObject, ie. populates its properties.
-		*   Note: Does not create a new object. ObjectToPopulate is the reference to the object you want to populate. */
-		UFUNCTION(BlueprintCallable, Category = "SQLite", meta = (DisplayName = "Get Data Into Object"))
+	/** Blueprint: Gets data from the database using a select statement straight into an UObject, ie. populates its properties.
+	*   Note: Does not create a new object. ObjectToPopulate is the reference to the object you want to populate. */
+	UFUNCTION(BlueprintCallable, Category = "SQLite", meta = (DisplayName = "Get Data Into Object"))
 		static bool GetDataIntoObjectBP(const FSQLiteDatabaseReference& DataSource, TArray<FString> Fields, FSQLiteQueryFinalizedQuery Query, UObject* ObjectToPopulate);
 
-		/** Get data from the database using a select statement and return the rows. */
-		UFUNCTION(BlueprintCallable, Category = "SQLite", meta = (DisplayName = "Get Data From Table(s) (manual query)"))
+	/** Get data from the database using a select statement and return the rows. */
+	UFUNCTION(BlueprintCallable, Category = "SQLite", meta = (DisplayName = "Get Data From Table(s) (manual query)"))
 		static FSQLiteQueryResult GetData(const FString& DatabaseName, const FString& Query);
 
-		/** Blueprint: Get data from the database. Returns the resulting rows. */
-		UFUNCTION(BlueprintCallable, Category = "SQLite", meta = (DisplayName = "Get Data From Table(s)"))
+	/** Blueprint: Get data from the database. Returns the resulting rows. */
+	UFUNCTION(BlueprintCallable, Category = "SQLite", meta = (DisplayName = "Get Data From Table(s)"))
 		static FSQLiteQueryResult GetDataBP(const FSQLiteDatabaseReference& DataSource, TArray<FString> Fields, FSQLiteQueryFinalizedQuery Query, int32 MaxResults = -1, int32 ResultOffset = 0);
 
-		/** Create table in the database. */
-		UFUNCTION(BlueprintCallable, Category = "SQLite|Query", meta = (DisplayName = "Create Table"))
-		static bool CreateTable(const FString DatabaseName, const FString TableName,
-			const TArray<FString> Fields, const FString PK, FString &TableNameOutput);
+	/** Create table in the database. */
+	UFUNCTION(BlueprintCallable, Category = "SQLite|Query", meta = (DisplayName = "Create Table"))
+		static FSQLiteTable CreateTable(const FString DatabaseName, const FString TableName,
+		const TArray<FSQLiteTableField> Fields, const FSQLitePrimaryKey PK);
 
-		/** Create indexes for table */
-		UFUNCTION(BlueprintCallable, Category = "SQLite|Query", meta = (DisplayName = "Create Indexes"))
-		static bool CreateIndexes(const FString DatabaseName, const FString TableName, const TArray<FString> Indexes);
+	/** Create indexes for table */
+	UFUNCTION(BlueprintCallable, Category = "SQLite|Query", meta = (DisplayName = "Create Indexes"))
+		static bool CreateIndexes(const FString DatabaseName, const FString TableName, const TArray<FSQLiteIndex> Indexes);
 
-		/** Create index for table */
-		UFUNCTION(BlueprintCallable, Category = "SQLite|Query", meta = (DisplayName = "Create Index"))
-		static bool CreateIndex(const FString DatabaseName, const FString TableName, const FString Index);
+	/** Create index for table */
+	UFUNCTION(BlueprintCallable, Category = "SQLite|Query", meta = (DisplayName = "Create Index"))
+		static bool CreateIndex(const FString DatabaseName, const FString TableName, const FSQLiteIndex Index);
 
-		/** Drop index*/
-		UFUNCTION(BlueprintCallable, Category = "SQLite|Query", meta = (DisplayName = "Drop Index"))
+	/** Drop index*/
+	UFUNCTION(BlueprintCallable, Category = "SQLite|Query", meta = (DisplayName = "Drop Index"))
 		static bool DropIndex(const FString DatabaseName, const FString IndexName);
 
-		/** Drop index*/
-		UFUNCTION(BlueprintCallable, Category = "SQLite|Query", meta = (DisplayName = "Drop Table"))
+	/** Drop Table*/
+	UFUNCTION(BlueprintCallable, Category = "SQLite|Query", meta = (DisplayName = "Drop Table"))
 		static bool DropTable(const FString DatabaseName, const FString TableName);
 
-	private:
-		/** Checks database validity (if the file exists and/or if it can be opened). */
-		static bool IsValidDatabase(FString DatabaseFilename, bool TestByOpening);
-		/** Tries to open a database. */
-		static bool CanOpenDatabase(FString DatabaseFilename);
-		/** Collects all properties from an UObject and maps them by the property name. */
-		static TMap<FString, UProperty*> CollectProperties(UObject* SourceObject);
-		/** Constructs an SQL query from the blueprint fed data. */
-		static FString ConstructQuery(TArray<FString> Tables, TArray<FString> Fields, FSQLiteQueryFinalizedQuery QueryObject, int32 MaxResults = -1, int32 ResultOffset = 0);
-		/** Runs a query and returns fetched rows. */
-		static SQLiteQueryResult RunQueryAndGetResults(FString DatabaseName, FString Query);
-		/** Assigns a result row's fields' values to an UObject, ie. assigns them to the properties that have the same name. */
-		static void AssignResultsToObjectProperties(const SQLiteResultValue& ResultValue, UObject* ObjectToPopulate);
-		static void PrepareStatement(const FString* DatabaseName, const FString* Query, sqlite3** Db, int32** SqlReturnCode,
-			sqlite3_stmt** PreparedStatement);
+	/** Truncate Table*/
+	UFUNCTION(BlueprintCallable, Category = "SQLite|Query", meta = (DisplayName = "Truncate Table"))
+		static bool TruncateTable(const FString DatabaseName, const FString TableName);
+
+	/** Is table exists?*/
+	UFUNCTION(BlueprintCallable, Category = "SQLite|Query", meta = (DisplayName = "Is table exists?"))
+		static bool IsTableExists(const FString DatabaseName, const FString TableName);
+
+	/** Insert rows into table */
+	UFUNCTION(BlueprintCallable, Category = "SQLite|Query", meta = (DisplayName = "Insert Rows Into Table"))
+		static void InsertRowsIntoTable(const FString DatabaseName, const FString TableName, TArray<FSQLiteTableRowSimulator> rowsOfFields);
+
+	/** Compact database*/
+	UFUNCTION(BlueprintCallable, Category = "SQLite|Query", meta = (DisplayName = "Compact database"))
+		static bool Vacuum(const FString DatabaseName);
+
+	/** Execute SQL (can be used for insert statement)*/
+	UFUNCTION(BlueprintCallable, Category = "SQLite|Query", meta = (DisplayName = "Execute SQL"))
 		static bool ExecSql(const FString DatabaseName, const FString Query);
 
-	private:
-		/** A list of the databases for convenience, easier to refer to them by name rather than a long filename. */
-		static TMap<FString, FString> Databases;
+private:
+	/** Checks database validity (if the file exists and/or if it can be opened). */
+	static bool IsValidDatabase(FString DatabaseFilename, bool TestByOpening);
+	/** Tries to open a database. */
+	static bool CanOpenDatabase(FString DatabaseFilename);
+	/** Collects all properties from an UObject and maps them by the property name. */
+	static TMap<FString, UProperty*> CollectProperties(UObject* SourceObject);
+	/** Constructs an SQL query from the blueprint fed data. */
+	static FString ConstructQuery(TArray<FString> Tables, TArray<FString> Fields, FSQLiteQueryFinalizedQuery QueryObject, int32 MaxResults = -1, int32 ResultOffset = 0);
+	/** Runs a query and returns fetched rows. */
+	static SQLiteQueryResult RunQueryAndGetResults(FString DatabaseName, FString Query);
+	/** Assigns a result row's fields' values to an UObject, ie. assigns them to the properties that have the same name. */
+	static void AssignResultsToObjectProperties(const SQLiteResultValue& ResultValue, UObject* ObjectToPopulate);
+	static void PrepareStatement(const FString* DatabaseName, const FString* Query, sqlite3** Db, int32** SqlReturnCode,
+		sqlite3_stmt** PreparedStatement);
+	
+
+private:
+	/** A list of the databases for convenience, easier to refer to them by name rather than a long filename. */
+	static TMap<FString, FString> Databases;
 
 };
